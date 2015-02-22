@@ -12,18 +12,42 @@
 
 .builds li .panel-success {
     background-color: #00bc8c;
+    -webkit-box-shadow: 4px 4px 5px 0px #0d693c;
+    -webkit-box-shadow: 4px 4px 5px 0px #0d693c;
+    -moz-box-shadow: 4px 4px 5px 0px #0d693c;
+    -moz-box-shadow: 4px 4px 5px 0px rgba(13, 105, 60, 0.97);
+    box-shadow: 4px 4px 5px 0px #0d693c;
+    box-shadow: 4px 4px 5px 0px rgba(13, 105, 60, 0.97);
 }
 
 .builds li .panel-danger {
     background-color: #e74c3c;
+    -webkit-box-shadow: 4px 4px 5px 0px #822d28;
+    -webkit-box-shadow: 4px 4px 5px 0px #822d28;
+    -moz-box-shadow: 4px 4px 5px 0px #822d28;
+    -moz-box-shadow: 4px 4px 5px 0px rgba(130, 45, 40, 1);
+    box-shadow: 4px 4px 5px 0px #822d28;
+    box-shadow: 4px 4px 5px 0px rgba(130, 45, 40, 1);
 }
 
 .builds li .panel-building {
     border-color: #375a7f;
+    -webkit-box-shadow: 4px 4px 5px 0px #12436e;
+    -webkit-box-shadow: 4px 4px 5px 0px #12436e;
+    -moz-box-shadow: 4px 4px 5px 0px #12436e;
+    -moz-box-shadow: 4px 4px 5px 0px rgba(18, 67, 110, 1);
+    box-shadow: 4px 4px 5px 0px #12436e;
+    box-shadow: 4px 4px 5px 0px rgba(18, 67, 110, 1);
 }
 
 .builds li .panel-primary {
     background-color: #375a7f;
+    -webkit-box-shadow: 4px 4px 5px 0px #12436e;
+    -webkit-box-shadow: 4px 4px 5px 0px #12436e;
+    -moz-box-shadow: 4px 4px 5px 0px #12436e;
+    -moz-box-shadow: 4px 4px 5px 0px rgba(18, 67, 110, 1);
+    box-shadow: 4px 4px 5px 0px #12436e;
+    box-shadow: 4px 4px 5px 0px rgba(18, 67, 110, 1);
 }
 
 .builds li .panel .header {
