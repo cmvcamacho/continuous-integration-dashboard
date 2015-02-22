@@ -1,0 +1,5 @@
+packages/
+TeamCityDashboard/bin/
+TeamCityDashboard/obj/
+TeamCityDashboard.Tests/bin/
+TeamCityDashboard.Tests/obj/

@@ -1,0 +1,55 @@
+﻿body {
+    padding-top: 70px;
+    /*background-color: #222222;*/
+    /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+}
+
+.builds {
+  margin-bottom: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.builds li .panel-success {
+    background-color: #00bc8c;
+}
+
+.builds li .panel-danger {
+    background-color: #e74c3c;
+}
+
+.builds li .panel-building {
+    border-color: #375a7f;
+}
+
+.builds li .panel-primary {
+    background-color: #375a7f;
+}
+
+.builds li .panel .header {
+    padding-left: 25px;
+    padding-right: 20px;
+}
+
+.builds li .panel .building .btn-lg {
+    color: #217dbb;
+    padding-left: 0;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.builds li .panel .details {
+    padding-left: 25px;
+    padding-right: 20px;
+}
+
+.builds li .panel .details div:nth-child(even) {
+    padding-left: 5px;
+}
+
+
+
+
+.build-link a span{
+    color: white;
+}
