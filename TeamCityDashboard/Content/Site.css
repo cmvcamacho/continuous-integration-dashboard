@@ -21,6 +21,11 @@
 .builds li .panel-primary {
     background-color: #375a7f;
 }
+
+.builds li .panel .header {
+    font-weight: bold;
+}
+
 .builds li .panel {
     -webkit-box-shadow: 2px 2px 3px rgba(255, 255, 255, 0.2);
     -moz-box-shadow: 2px 2px 3px rgba(255, 255, 255, 0.2);
@@ -28,16 +33,20 @@
     border-color: #464545;
 }
 
-.builds li .panel .header {
-    padding-left: 25px;
-    padding-right: 20px;
+.builds li .panel p {
+    margin: 0 0 1px;
+    padding-top: 2px;
+    padding-bottom: 3px;
 }
 
+.builds li .panel .building  {
+    position: absolute;
+    top: -15px;
+    right: 5px;
+}
 .builds li .panel .building .btn-lg {
     color: #217dbb;
-    padding-left: 0;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-right: 15px;
 }
 
 .builds li .panel .details {
@@ -45,12 +54,18 @@
     padding-right: 20px;
 }
 
-.builds li .panel .details div:nth-child(even) {
-    padding-left: 5px;
+.builds li .panel .details span {
+    font-size: 85%;
 }
 
-
-
+@media (min-width: 1200px) and (max-width: 1500px){
+    .builds li .panel .details {
+        font-size: 75% !important;
+    }
+    .build-link {
+        margin-top: -5px !important;
+    }
+}
 
 .build-link a span{
     color: white;
