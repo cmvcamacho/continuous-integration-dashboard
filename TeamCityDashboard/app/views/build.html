@@ -1,0 +1,10 @@
+﻿<div class="panel small" ng-class="{ success:'panel-success', failed:'panel-danger', building:'panel-warning', undefined:'panel-primary' }[build.Status]">
+    <p class="text-center header">{{ build.Name }}</p>
+    <p class="details">Build:&nbsp;<span>{{ build.BuildNumber }}</span></p>
+    <p class="pull-right build-link">
+        <a class="btn btn-link btn-xs" title="Open">
+            <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>
+        </a>
+    </p>
+    <p class="details">Passed:&nbsp;<span>{{ build.Tests.Passed }}</span>&nbsp;&nbsp;Failed:&nbsp;<span>{{ build.Tests.Failed }}</span></p>
+</div>

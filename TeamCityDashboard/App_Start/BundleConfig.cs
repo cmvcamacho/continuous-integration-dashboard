@@ -26,10 +26,21 @@ namespace TeamCityDashboard
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                         "~/Scripts/modernizr-*"));
 
+            bundles.Add(new ScriptBundle("~/bundles/angularjs").Include(
+                          "~/Scripts/angular.js"));
+
             bundles.Add(new StyleBundle("~/Content/css").Include("~/Content/site.css"));
 
             bundles.Add(new StyleBundle("~/Bootstrap/css").Include(
                         "~/Content/bootstrap.css"));
+
+            bundles.Add(new ScriptBundle("~/bundles/application").Include(
+                "~/app/app.js",
+                "~/app/services.js",
+                "~/app/controllers.js",
+                "~/app/services/projectService.js",
+                "~/app/controllers/projectController.js"
+                ));
         }
     }
 }

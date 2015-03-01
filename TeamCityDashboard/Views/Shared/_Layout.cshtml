@@ -23,11 +23,15 @@
     @Html.Partial("Header")
 
     @RenderBody()
-    
+
     @Html.Partial("Footer")
 
     @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/angularjs")
     @Scripts.Render("~/bundles/bootstrap")
+    
+    @Scripts.Render("~/bundles/application")
+
     @RenderSection("scripts", required: false)
 </body>
 </html>
