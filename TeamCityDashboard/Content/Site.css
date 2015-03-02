@@ -22,8 +22,8 @@
     background-color: #375a7f;
 }
 
-.builds li .panel-warning {
-    background-color: #f39c12;
+.builds li .panel-info {
+    background-color: #64BEFA;
 }
 .builds li .panel .header {
     font-weight: bold;
