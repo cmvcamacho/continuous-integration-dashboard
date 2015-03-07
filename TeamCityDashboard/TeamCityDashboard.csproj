@@ -135,7 +135,7 @@
   <ItemGroup>
     <Content Include="app\app.js" />
     <Content Include="app\controllers.js" />
-    <Content Include="app\controllers\projectController.js" />
+    <Content Include="app\controllers\ProjectController.js" />
     <Content Include="app\services\projectService.js" />
     <Content Include="app\services.js" />
     <Content Include="app\tests\projectServiceTests.js" />
