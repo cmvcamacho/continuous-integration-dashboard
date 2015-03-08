@@ -7,7 +7,5 @@
 # Uncomment if necessary however generally it will be regenerated when needed
 !**/packages/repositories.config
 
-TeamCityDashboard/bin/
-TeamCityDashboard/obj/
-TeamCityDashboard.Tests/bin/
-TeamCityDashboard.Tests/obj/
+*/bin/
+*/obj/
