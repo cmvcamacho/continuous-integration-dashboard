@@ -38,6 +38,7 @@ namespace TeamCityDashboard
                 "~/app/app.js",
                 "~/app/services.js",
                 "~/app/controllers.js",
+                "~/app/filters.js",
                 "~/app/services/projectService.js",
                 "~/app/controllers/ProjectController.js"
                 ));

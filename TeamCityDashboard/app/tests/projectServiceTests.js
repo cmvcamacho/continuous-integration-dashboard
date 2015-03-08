@@ -11,14 +11,14 @@ describe("Servicea suite", function () {
 
     describe("Project service", function () {
 
-        var project;
+        var projectsService;
 
         beforeEach(inject(function ($injector) {
-            project = $injector.get('Project');
+            projectsService = $injector.get('$projects');
         }));
 
         it('should return 2 project when querying', function () {
-            expect(project.query().length).toBe(2);
+            expect(projectsService.query().length).toBe(2);
         });
 
     });

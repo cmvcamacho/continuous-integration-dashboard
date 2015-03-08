@@ -1,6 +1,6 @@
 ﻿(function () {
     'use strict';
-    angular.module('services').factory('Project', function () {
+    angular.module('services').factory('$projects', function () {
 
         var projects =[
             {

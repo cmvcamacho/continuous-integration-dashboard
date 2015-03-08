@@ -4,7 +4,7 @@
 
 ///<reference path="~/App/app.js"/>
 ///<reference path="~/App/controllers.js"/>
-///<reference path="~/App/controllers/projectController.js"/>
+///<reference path="~/App/controllers/ProjectController.js"/>
 
 describe("Controllers suite", function () {
 
@@ -13,13 +13,13 @@ describe("Controllers suite", function () {
     describe("Project controller", function () {
 
         var scope,
-            project,
+            projectsService,
             controller;
 
         beforeEach(inject(function ($rootScope, $controller) {
             scope = $rootScope.$new();
 
-            project = {
+            projectsService = {
                 query: function () {
                     return [
                         {
@@ -49,11 +49,12 @@ describe("Controllers suite", function () {
                 }
             }
 
-            controller = $controller('ProjectController', { $scope: scope, Project: project });
+            controller = $controller('ProjectController', { $scope: scope, $projects: projectsService });
         }));
 
         it('should have 1 project', function () {
             expect(scope.projects.length).toBe(1);
         });
+
     });
 });

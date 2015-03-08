@@ -1,8 +1,9 @@
 ﻿(function () {
     'use strict';
 
-    var app =  angular.module('controllers').controller('ProjectController', ['$scope', 'Project', function ($scope, Project) {
-        $scope.projects = Project.query();
+    var app = angular.module('controllers')
+        .controller('ProjectController', ['$scope', '$projects', function ($scope, $projects) {
+            $scope.projects = $projects.query();
     }]);
   
     app.directive('project', function () {

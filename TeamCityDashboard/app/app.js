@@ -3,7 +3,7 @@
 
     var app = angular.module('app', [
         'controllers',
-        'services'
+        'services',
+        'filters'
     ]);
-
 })();

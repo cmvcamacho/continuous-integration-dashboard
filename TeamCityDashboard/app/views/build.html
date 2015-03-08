@@ -1,4 +1,4 @@
-﻿<div class="panel small" ng-class="{ success:'panel-success', failed:'panel-danger', building:'panel-primary', undefined:'panel-info' }[build.Status]">
+﻿<div class="panel small {{ build.Status | buildStatusCss }}">
     <p class="text-center header">{{ build.Name }}</p>
     <p class="details">Build:&nbsp;<span>{{ build.BuildNumber }}</span></p>
     <p class="pull-right build-link">
