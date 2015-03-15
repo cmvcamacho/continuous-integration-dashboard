@@ -7,7 +7,7 @@ using System.Web.Http;
 
 namespace CIDashboard.Web.Controllers
 {
-    public class ValuesController : ApiController
+    public class CiDashboardController : ApiController
     {
         // GET api/values
         public IEnumerable<string> Get()
