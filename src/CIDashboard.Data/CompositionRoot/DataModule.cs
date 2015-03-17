@@ -10,13 +10,12 @@ namespace CIDashboard.Data.CompositionRoot
             builder
                 .RegisterType<CiDashboardContextFactory>()
                 .As<ICiDashboardContextFactory>()
-                .ExternallyOwned()
                 .InstancePerLifetimeScope();
 
             builder
                 .RegisterType<CiDashboardService>()
                 .As<ICiDashboardService>()
-                .ExternallyOwned()
+                .PropertiesAutowired()
                 .InstancePerLifetimeScope();
         }
     }

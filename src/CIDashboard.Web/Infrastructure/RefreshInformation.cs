@@ -9,20 +9,10 @@ namespace CIDashboard.Web.Infrastructure
     public class RefreshInformation : IRefreshInformation
     {
         private static readonly ILogger Logger = Log.ForContext<RefreshInformation>();
+   
+        internal static ConcurrentDictionary<string, string> ProjectsPerConnId = new ConcurrentDictionary<string, string>();
 
-        private readonly object _objLock = new object();
-
-        private readonly ICiDashboardService _ciDashboardService;
-        
-        internal static ConcurrentDictionary<string, string> ProjectsPerConnId { get; set; }
-
-        public RefreshInformation()
-        {
-            lock (this._objLock)
-            {
-                ProjectsPerConnId = new ConcurrentDictionary<string, string>();
-            }
-        }
+        public ICiDashboardService CiDashboardService { get; set; }
 
         public void AddBuilds(string username, string connectionId)
         {
@@ -37,6 +27,8 @@ namespace CIDashboard.Web.Infrastructure
             {
                 Logger.Debug("Refresh builds for {user} and {connectionId}", username, connectionId);
             }
+
+            this.CiDashboardService.GetProjects(username);
 
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
             hubContext.Clients.Client(connectionId).sendMessage("Your builds are being retrieved");
@@ -56,6 +48,7 @@ namespace CIDashboard.Web.Infrastructure
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
             foreach (var connectionId in ProjectsPerConnId.Keys)
             {
+                Logger.Debug("Refreshing builds for {connectionId}", connectionId);
                 hubContext.Clients.Client(connectionId).sendMessage("Your builds are being refreshed");
             }
         }

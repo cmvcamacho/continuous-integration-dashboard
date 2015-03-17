@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
 using Autofac.Integration.SignalR;
 using CIDashboard.Data.CompositionRoot;
 using CIDashboard.Web.CompositionRoot;
@@ -50,7 +51,9 @@ namespace CIDashboard.Web
             app.UseHangfire(configHangfire =>
             {
                 configHangfire.UseAutofacActivator(container);
-                configHangfire.UseSqlServerStorage("CiDashboardContext");
+                configHangfire.UseSqlServerStorage(
+                    "CiDashboardContext",
+                    new SqlServerStorageOptions { QueuePollInterval = TimeSpan.FromSeconds(5) });
                 configHangfire.UseServer();
             });
             ConfigureHangfireJobs(container);

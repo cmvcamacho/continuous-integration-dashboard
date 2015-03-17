@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Autofac;
 using CIDashboard.Web.Infrastructure;
 using Hangfire;
 using Microsoft.AspNet.SignalR;
@@ -28,34 +27,34 @@ namespace CIDashboard.Web.Hubs
 
         public override Task OnConnected()
         {
-            var userName = Context.User.Identity.Name;
-            var connId = Context.ConnectionId;
+            var username = Context.User.Identity.Name;
+            var connectionId = Context.ConnectionId;
 
-            Logger.Debug("OnConnected {userName} {connId}", userName, connId);
+            Logger.Debug("OnConnected for {username} and {connectionId}", username, connectionId);
 
-            _backgroundJobClient.Enqueue(() => _refreshInformation.AddBuilds(userName, connId));
+            _backgroundJobClient.Enqueue(() => _refreshInformation.AddBuilds(username, connectionId));
 
             return base.OnConnected();
         }
 
         public override Task OnDisconnected(bool stopCalled)
         {
-            var connId = Context.ConnectionId;
-            Logger.Debug("OnDisconnected {connId}", connId);
+            var connectionId = Context.ConnectionId;
+            Logger.Debug("OnDisconnected for {connectionId}", connectionId);
 
-            _backgroundJobClient.Enqueue(() => _refreshInformation.RemoveBuilds(connId));
+            _backgroundJobClient.Enqueue(() => _refreshInformation.RemoveBuilds(connectionId));
 
             return base.OnDisconnected(stopCalled);
         }
 
         public override Task OnReconnected()
         {
-            var userName = Context.User.Identity.Name;
-            var connId = Context.ConnectionId;
+            var username = Context.User.Identity.Name;
+            var connectionId = Context.ConnectionId;
 
-            Logger.Debug("OnReconnected {userName} {connId}", userName, connId);
+            Logger.Debug("OnReconnected for {username} and {connectionId}", username, connectionId);
 
-            _backgroundJobClient.Enqueue(() => _refreshInformation.AddBuilds(userName, connId));
+            _backgroundJobClient.Enqueue(() => _refreshInformation.AddBuilds(username, connectionId));
 
             return base.OnReconnected();
         }

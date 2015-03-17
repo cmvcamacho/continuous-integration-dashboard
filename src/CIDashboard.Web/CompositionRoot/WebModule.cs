@@ -12,6 +12,7 @@ namespace CIDashboard.Web.CompositionRoot
                 .RegisterType<RefreshInformation>()
                 .As<IRefreshInformation>()
                 .ExternallyOwned()
+                .PropertiesAutowired()
                 .InstancePerLifetimeScope();
 
             builder
