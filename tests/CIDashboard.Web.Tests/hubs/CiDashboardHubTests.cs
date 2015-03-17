@@ -1,24 +1,24 @@
 ﻿using System.Security.Principal;
-using Autofac;
-using CIDashboard.Data.Interfaces;
-using CIDashboard.Web.hubs;
+using CIDashboard.Web.Hubs;
+using CIDashboard.Web.Infrastructure;
 using FakeItEasy;
-using FluentAssertions;
+using Hangfire;
+using Hangfire.Common;
+using Hangfire.States;
 using Microsoft.AspNet.SignalR.Hubs;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoFakeItEasy;
-using Ploeh.AutoFixture.NUnit2;
 
-namespace CIDashboard.Web.Tests.hubs
+namespace CIDashboard.Web.Tests.Hubs
 {
     [TestFixture]
     public class CiDashboardHubTests
     {
-        private ILifetimeScope _lifetimeScope;
         private IPrincipal _principal;
         private HubCallerContext _context;
-        private ICiDashboardService _ciDashboardService;
+        private IBackgroundJobClient _backgroundJobClient;
+        private IRefreshInformation _refreshInformation;
         private IFixture _fixture;
 
         [SetUp]
@@ -27,82 +27,68 @@ namespace CIDashboard.Web.Tests.hubs
             _fixture = new Fixture()
                 .Customize(new AutoFakeItEasyCustomization());
 
-            _lifetimeScope = A.Fake<ILifetimeScope>();
+            _backgroundJobClient = A.Fake<IBackgroundJobClient>();
+            _refreshInformation = A.Fake<IRefreshInformation>();
             _principal = A.Fake<IPrincipal>();
             _context = A.Fake<HubCallerContext>();
-
-            _ciDashboardService = A.Fake<ICiDashboardService>();
-            _fixture.Inject(_ciDashboardService);
-
-        }
-
-        [Test, AutoData]
-        public void OnConnectStoresUserConnectionId(string connectionId)
-        {
-            var username = _fixture.Create<string>();
-            A.CallTo(() => _principal.Identity.Name).Returns(username);
-            A.CallTo(() => _context.ConnectionId).Returns(connectionId);
-            A.CallTo(() => _context.User).Returns(_principal);
-
-            var hub = new CiDashboardHub(_lifetimeScope) { Context = _context };
-
-            hub.OnConnected();
-
-            CiDashboardHub.ProjectsPerConnId.ContainsKey(connectionId).Should().BeTrue();
         }
 
         [Test]
-        public void OnConnectStoresAndMaintainsUserConnectionIdOnSequentialAccesses()
-        {
-            var userName = _fixture.Create<string>();
-            var connectionId = _fixture.Create<string>();
-
-            A.CallTo(() => _principal.Identity.Name).Returns(userName);
-            A.CallTo(() => _context.ConnectionId).Returns(connectionId);
-            A.CallTo(() => _context.User).Returns(_principal);
-            var hub = new CiDashboardHub(_lifetimeScope) { Context = _context };
-
-            hub.OnConnected();
-
-            var userName2 = _fixture.Create<string>();
-            var connectionId2 = _fixture.Create<string>();
-            A.CallTo(() => _principal.Identity.Name).Returns(userName2);
-            A.CallTo(() => _context.ConnectionId).Returns(connectionId2);
-            A.CallTo(() => _context.User).Returns(_principal);
-         
-            hub.OnConnected();
-
-            CiDashboardHub.ProjectsPerConnId.ContainsKey(connectionId).Should().BeTrue();
-            CiDashboardHub.ProjectsPerConnId.ContainsKey(connectionId2).Should().BeTrue();
-        }
-
-        [Test, AutoData]
-        public void OnReconnectedStoresUserConnectionId(string connectionId)
+        public void OnConnectEnqueueAddBuildsMethodToHangfire()
         {
             var username = _fixture.Create<string>();
+            var connectionId = _fixture.Create<string>();
             A.CallTo(() => _principal.Identity.Name).Returns(username);
-
             A.CallTo(() => _context.ConnectionId).Returns(connectionId);
             A.CallTo(() => _context.User).Returns(_principal);
 
-            var hub = new CiDashboardHub(_lifetimeScope) { Context = _context };
+            var hub = new CiDashboardHub(_backgroundJobClient, _refreshInformation) { Context = _context };
+
+            hub.OnConnected();
+
+            A.CallTo(() => _backgroundJobClient.Create(
+                    A<Job>.That.Matches(job => job.Method.Name == "AddBuilds" && job.Arguments[0].Contains(username) && job.Arguments[1].Contains(connectionId)),
+                    A<EnqueuedState>._))
+                .MustHaveHappened();
+        }
+
+        [Test]
+        public void OnReconnectedEnqueueAddBuildsMethodToHangfire()
+        {
+            var username = _fixture.Create<string>();
+            var connectionId = _fixture.Create<string>();
+            A.CallTo(() => _principal.Identity.Name).Returns(username);
+            A.CallTo(() => _context.ConnectionId).Returns(connectionId);
+            A.CallTo(() => _context.User).Returns(_principal);
+
+            var hub = new CiDashboardHub(_backgroundJobClient, _refreshInformation) { Context = _context };
 
             hub.OnReconnected();
 
-            CiDashboardHub.ProjectsPerConnId.ContainsKey(connectionId).Should().BeTrue();
+            A.CallTo(() => _backgroundJobClient.Create(
+                    A<Job>.That.Matches(job => job.Method.Name == "AddBuilds" && job.Arguments[0].Contains(username) && job.Arguments[1].Contains(connectionId)),
+                    A<EnqueuedState>._))
+                .MustHaveHappened();
         }
 
 
-        [Test, AutoData]
-        public void OnDisconnectedRemovesUserConnectionId(string connectionId)
+        [Test]
+        public void OnDisconnectedEnqueueRemoveBuildsMethodToHangfire()
         {
+            var username = _fixture.Create<string>();
+            var connectionId = _fixture.Create<string>();
+            A.CallTo(() => _principal.Identity.Name).Returns(username);
             A.CallTo(() => _context.ConnectionId).Returns(connectionId);
+            A.CallTo(() => _context.User).Returns(_principal);
 
-            var hub = new CiDashboardHub(_lifetimeScope) { Context = _context };
+            var hub = new CiDashboardHub(_backgroundJobClient, _refreshInformation) { Context = _context };
 
             hub.OnDisconnected(true);
 
-            CiDashboardHub.ProjectsPerConnId.ContainsKey(connectionId).Should().BeFalse();
+            A.CallTo(() => _backgroundJobClient.Create(
+                    A<Job>.That.Matches(job => job.Method.Name == "RemoveBuilds" && job.Arguments[0].Contains(connectionId)),
+                    A<EnqueuedState>._))
+                .MustHaveHappened();
         }
     }
 }

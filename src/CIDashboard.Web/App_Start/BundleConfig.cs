@@ -23,6 +23,9 @@ namespace CIDashboard.Web
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
              "~/Scripts/bootstrap.js"));
 
+            bundles.Add(new ScriptBundle("~/bundles/toastr").Include(
+                    "~/Scripts/toastr.js"));
+
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
             // ready for production, use the build tool at http://modernizr.com to pick only the tests you need.
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
@@ -35,6 +38,8 @@ namespace CIDashboard.Web
 
             bundles.Add(new StyleBundle("~/Bootstrap/css").Include(
                         "~/Content/bootstrap.css"));
+            bundles.Add(new StyleBundle("~/Toastr/css").Include(
+                        "~/Content/toastr.css"));
 
             bundles.Add(new ScriptBundle("~/bundles/application").Include(
                 "~/app/app.js",

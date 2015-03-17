@@ -14,12 +14,6 @@ namespace CIDashboard.Data.CompositionRoot
                 .InstancePerLifetimeScope();
 
             builder
-                .RegisterType<CiDashboardContext>()
-                .As<ICiDashboardContext>()
-                .ExternallyOwned()
-                .InstancePerLifetimeScope();
-
-            builder
                 .RegisterType<CiDashboardService>()
                 .As<ICiDashboardService>()
                 .ExternallyOwned()

@@ -1,44 +1,29 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
-using CIDashboard.Data.Interfaces;
+﻿using System.Threading.Tasks;
+using Autofac;
+using CIDashboard.Web.Infrastructure;
+using Hangfire;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
-using CIDashboard.Data;
-using Autofac;
+using Serilog;
 
-namespace CIDashboard.Web.hubs
+namespace CIDashboard.Web.Hubs
 {
     [Authorize]
-    [HubName("ciHub")]
+    [HubName("ciDashboardHub")]
     public class CiDashboardHub : Hub
     {
-        private static readonly object objLock = new object();
-        internal static ConcurrentDictionary<string, string> ProjectsPerConnId;
+        private static readonly ILogger Logger = Log.ForContext<CiDashboardHub>();
+        private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly IRefreshInformation _refreshInformation;
 
-        private readonly ILifetimeScope _hubLifetimeScope;
-        private readonly ICiDashboardService _ciDashboardService;
-
-        public CiDashboardHub(ILifetimeScope lifetimeScope)
+        public CiDashboardHub(IBackgroundJobClient backgroundJobClient, IRefreshInformation refreshInformation)
         {
-            lock (objLock)
-            {
-                ProjectsPerConnId = new ConcurrentDictionary<string, string>();
-            }
-
             // http://autofac.readthedocs.org/en/latest/integration/signalr.html
             // Create a lifetime scope for the hub.
-            _hubLifetimeScope = lifetimeScope.BeginLifetimeScope();
+            //_hubLifetimeScope = lifetimeScope.BeginLifetimeScope();
 
-         //   _ciDashboardService = _hubLifetimeScope.Resolve<ICiDashboardService>();
-        }
-
-        public void Hello()
-        {
-            Clients.All.hello("1");
+            _backgroundJobClient = backgroundJobClient;
+            _refreshInformation = refreshInformation;
         }
 
         public override Task OnConnected()
@@ -46,12 +31,9 @@ namespace CIDashboard.Web.hubs
             var userName = Context.User.Identity.Name;
             var connId = Context.ConnectionId;
 
-            string projects;
-            if (ProjectsPerConnId.ContainsKey(connId))
-                ProjectsPerConnId.TryRemove(connId, out projects);
+            Logger.Debug("OnConnected {userName} {connId}", userName, connId);
 
-            projects = userName;
-            ProjectsPerConnId.TryAdd(connId, projects);
+            _backgroundJobClient.Enqueue(() => _refreshInformation.AddBuilds(userName, connId));
 
             return base.OnConnected();
         }
@@ -59,10 +41,9 @@ namespace CIDashboard.Web.hubs
         public override Task OnDisconnected(bool stopCalled)
         {
             var connId = Context.ConnectionId;
+            Logger.Debug("OnDisconnected {connId}", connId);
 
-            string projects;
-            if (ProjectsPerConnId.ContainsKey(connId))
-                ProjectsPerConnId.TryRemove(connId, out projects);
+            _backgroundJobClient.Enqueue(() => _refreshInformation.RemoveBuilds(connId));
 
             return base.OnDisconnected(stopCalled);
         }
@@ -72,14 +53,16 @@ namespace CIDashboard.Web.hubs
             var userName = Context.User.Identity.Name;
             var connId = Context.ConnectionId;
 
-            string projects;
-            if (!ProjectsPerConnId.ContainsKey(connId))
-            {
-                projects = userName;
-                ProjectsPerConnId.TryAdd(connId, projects);
-            }
+            Logger.Debug("OnReconnected {userName} {connId}", userName, connId);
+
+            _backgroundJobClient.Enqueue(() => _refreshInformation.AddBuilds(userName, connId));
 
             return base.OnReconnected();
         }
+
+        //public void Hello()
+        //{
+        //    Clients.All.hello("1");
+        //}
     }
 }
