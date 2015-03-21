@@ -17,5 +17,8 @@ namespace CIDashboard.Data.Entities
 
         [Required]
         public string CiExternalId { get; set; }
+
+        public virtual Project Project { get; set; }
+
     }
 }

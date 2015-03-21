@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Linq;
 using Autofac;
 using Autofac.Integration.SignalR;
+using CIDashboard.Data;
 using CIDashboard.Data.CompositionRoot;
+using CIDashboard.Data.Interfaces;
 using CIDashboard.Web.CompositionRoot;
 using CIDashboard.Web.Hubs;
 using CIDashboard.Web.Infrastructure;
@@ -48,6 +51,19 @@ namespace CIDashboard.Web
 
             GlobalHost.DependencyResolver = config.Resolver;
 
+            // force DB creation if it does not exists
+            using (var ctx = container.Resolve<ICiDashboardContextFactory>().Create())
+            {
+                ctx.Projects.FirstOrDefault();
+            } 
+
+            ConfigureHangfireJobs(app, container);
+
+            app.MapSignalR("/signalr", config);
+        }
+
+        private void ConfigureHangfireJobs(IAppBuilder app, IContainer container)
+        {
             app.UseHangfire(configHangfire =>
             {
                 configHangfire.UseAutofacActivator(container);
@@ -56,13 +72,7 @@ namespace CIDashboard.Web
                     new SqlServerStorageOptions { QueuePollInterval = TimeSpan.FromSeconds(5) });
                 configHangfire.UseServer();
             });
-            ConfigureHangfireJobs(container);
-
-            app.MapSignalR("/signalr", config);
-        }
-
-        private void ConfigureHangfireJobs(IContainer container)
-        {
+            
             RecurringJob.AddOrUpdate("RefreshBuilds", () => container.Resolve<IRefreshInformation>().RefreshBuilds(), Cron.Minutely);
         }
 

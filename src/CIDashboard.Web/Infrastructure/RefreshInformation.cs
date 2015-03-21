@@ -1,4 +1,6 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
+using CIDashboard.Data.Entities;
 using CIDashboard.Data.Interfaces;
 using CIDashboard.Web.Hubs;
 using Microsoft.AspNet.SignalR;
@@ -28,10 +30,15 @@ namespace CIDashboard.Web.Infrastructure
                 Logger.Debug("Refresh builds for {user} and {connectionId}", username, connectionId);
             }
 
-            this.CiDashboardService.GetProjects(username);
-
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
             hubContext.Clients.Client(connectionId).sendMessage("Your builds are being retrieved");
+
+            //this.CiDashboardService.GetProjects(username);
+
+            hubContext.Clients.Client(connectionId).sendProjects(new []
+            {
+                new Project{Description = "teste", Builds = new []{new Build{Description = "asas"}}}
+            });
         }
 
         public void RemoveBuilds(string connectionId)

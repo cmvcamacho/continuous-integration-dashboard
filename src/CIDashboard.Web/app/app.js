@@ -6,6 +6,7 @@
         'services',
         'filters'
     ]);
+    app.value('$', $);
 
     toastr.options = {
         "debug": false,

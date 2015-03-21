@@ -27,10 +27,13 @@ namespace CIDashboard.Data.Tests
                 .Customize(new AutoFakeItEasyCustomization());
         }
 
-        [Test, AutoData]
+        [Test]
         public void GetProjectsReturnCorrectData()
         {
-            var projects = _fixture.CreateMany<Project>().AsQueryable();
+            _fixture.Customize<Build>(c => c.Without(f => f.Project));
+            var projects = _fixture
+                .CreateMany<Project>()
+                .AsQueryable();
             var username = projects.First().User;
 
             var projectsSet = A.Fake<DbSet<Project>>(builder => builder

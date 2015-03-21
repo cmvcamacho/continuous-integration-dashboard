@@ -14,7 +14,7 @@ describe("Servicea suite", function () {
         var projectsService;
 
         beforeEach(inject(function ($injector) {
-            projectsService = $injector.get('$projects');
+            projectsService = $injector.get('$projectsService');
         }));
 
         it('should return 2 project when querying', function () {
