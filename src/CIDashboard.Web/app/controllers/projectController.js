@@ -7,31 +7,34 @@
             $projectsService.initialize();
 
 
-            $scope.projects = $projectsService.query();
-
+            $scope.projects = [];
 
             var showMessage = function (message) {
-                toastr.success(message);
+                if (message.Status === "Info")
+                    toastr.info(message.Message);
+                else if (message.Status === "Success")
+                    toastr.success(message.Message);
             }
+
+            var showProjects = function (projectList) {
+                $scope.projects.splice(0, $scope.projects.length);
+
+                var list = JSON.parse(projectList);
+                for(var i=0; i<list.length; i++)
+                    $scope.projects.push(list[i]);
+            }
+
             $scope.$parent.$on("sendMessage", function (e, message) {
                 $scope.$apply(function () {
                     showMessage(message);
                 });
             });
 
-            //var hub = $.connection.ciDashboardHub;
-            //hub.client.sendMessage = function (message) {
-            //    toastr.success(message);
-            //}
-            //$.connection.logging = true;
-
-            //$.connection.hub.start()
-            //    .done(function() {
-            //        console.log('Now connected, connection ID=' + $.connection.hub.id);
-            //        toastr.success('Connection established');
-            //    })
-            //    .fail(function() { console.log('Could not Connect!'); });
-
+            $scope.$parent.$on("sendProjects", function (e, projectList) {
+                $scope.$apply(function () {
+                    showProjects(projectList);
+                });
+            });
     }]);
   
     app.directive('project', function () {

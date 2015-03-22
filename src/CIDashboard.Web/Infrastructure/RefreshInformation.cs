@@ -1,7 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using AutoMapper;
 using CIDashboard.Data.Entities;
 using CIDashboard.Data.Interfaces;
+using CIDashboard.Domain.Extensions;
 using CIDashboard.Web.Hubs;
 using Microsoft.AspNet.SignalR;
 using Serilog;
@@ -16,7 +18,7 @@ namespace CIDashboard.Web.Infrastructure
 
         public ICiDashboardService CiDashboardService { get; set; }
 
-        public void AddBuilds(string username, string connectionId)
+        public async void AddBuilds(string username, string connectionId)
         {
             if(!ProjectsPerConnId.ContainsKey(connectionId))
             {
@@ -31,14 +33,11 @@ namespace CIDashboard.Web.Infrastructure
             }
 
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
-            hubContext.Clients.Client(connectionId).sendMessage("Your builds are being retrieved");
+            hubContext.Clients.Client(connectionId).sendMessage(new {Status = "Info", Message = "Your builds are being retrieved" });
 
-            //this.CiDashboardService.GetProjects(username);
+            var userProjects = await this.CiDashboardService.GetProjects(username);
 
-            hubContext.Clients.Client(connectionId).sendProjects(new []
-            {
-                new Project{Description = "teste", Builds = new []{new Build{Description = "asas"}}}
-            });
+            hubContext.Clients.Client(connectionId).sendProjects(Mapper.Map<IEnumerable<Data.Entities.Project>, IEnumerable<Models.Project>>(userProjects).ToJson());
         }
 
         public void RemoveBuilds(string connectionId)
@@ -56,7 +55,7 @@ namespace CIDashboard.Web.Infrastructure
             foreach (var connectionId in ProjectsPerConnId.Keys)
             {
                 Logger.Debug("Refreshing builds for {connectionId}", connectionId);
-                hubContext.Clients.Client(connectionId).sendMessage("Your builds are being refreshed");
+                hubContext.Clients.Client(connectionId).sendMessage(new { Status = "Info", Message = "Your builds are being refreshed" });
             }
         }
     }

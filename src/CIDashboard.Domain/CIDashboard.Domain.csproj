@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Serilog">
       <HintPath>..\..\packages\Serilog.1.4.204\lib\net45\Serilog.dll</HintPath>
       <Private>True</Private>
@@ -47,7 +50,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Build.cs" />
+    <Compile Include="Entities\Build.cs" />
+    <Compile Include="Extensions\JsonSerialize.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

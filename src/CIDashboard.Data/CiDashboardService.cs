@@ -16,7 +16,11 @@ namespace CIDashboard.Data
         {
             using (var context = CtxFactory.Create())
             {
-                return await context.Projects.Where(p => p.User == username).ToListAsync();
+                return await context.Projects
+                    .Where(p => p.User == username)
+                    .Include(p => p.Builds)
+                    .OrderBy(p => p.Order)
+                    .ToListAsync();
             }
         }
     }

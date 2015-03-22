@@ -2,10 +2,12 @@
 using System.Linq;
 using Autofac;
 using Autofac.Integration.SignalR;
+using AutoMapper;
 using CIDashboard.Data;
 using CIDashboard.Data.CompositionRoot;
 using CIDashboard.Data.Interfaces;
 using CIDashboard.Web.CompositionRoot;
+using CIDashboard.Web.CompositionRoot.Profilers;
 using CIDashboard.Web.Hubs;
 using CIDashboard.Web.Infrastructure;
 using Hangfire;
@@ -49,6 +51,8 @@ namespace CIDashboard.Web
             // Register the Autofac middleware FIRST, then the standard SignalR middleware.
             app.UseAutofacMiddleware(container);
 
+            ConfigureMappers();
+
             GlobalHost.DependencyResolver = config.Resolver;
 
             // force DB creation if it does not exists
@@ -60,6 +64,11 @@ namespace CIDashboard.Web
             ConfigureHangfireJobs(app, container);
 
             app.MapSignalR("/signalr", config);
+        }
+
+        private void ConfigureMappers()
+        {
+            Mapper.Initialize(cfg => cfg.AddProfile<DbToModelProfilers>());
         }
 
         private void ConfigureHangfireJobs(IAppBuilder app, IContainer container)

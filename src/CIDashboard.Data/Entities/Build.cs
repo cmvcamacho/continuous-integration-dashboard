@@ -13,12 +13,13 @@ namespace CIDashboard.Data.Entities
 
         [Required]
         [MaxLength(255)]
-        public string Description { get; set; }
+        public string Name { get; set; }
 
         [Required]
         public string CiExternalId { get; set; }
 
-        public virtual Project Project { get; set; }
+        public int Order { get; set; }
 
+        public virtual Project Project { get; set; }
     }
 }

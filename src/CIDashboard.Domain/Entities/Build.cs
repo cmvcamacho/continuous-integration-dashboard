@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CIDashboard.Domain
+namespace CIDashboard.Domain.Entities
 {
     public class Build
     {
