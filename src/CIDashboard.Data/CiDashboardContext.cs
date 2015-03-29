@@ -69,13 +69,13 @@ namespace CIDashboard.Data
                     new Project
                     {
                         Id = 1,
-                        User = @"camacho\carlos camacho",
+                        User = @"CARLOSCAMAC5A25\carloscamacho",
                         Name = "test1"
                     },
                     new Project
                     {
                         Id = 2,
-                        User = @"camacho\carlos camacho",
+                        User = @"CARLOSCAMAC5A25\carloscamacho",
                         Name = "test2"
                     }
                 };

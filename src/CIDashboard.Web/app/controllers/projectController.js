@@ -17,6 +17,7 @@
             }
 
             var showProjects = function (projectList) {
+                $('.spinner').remove();
                 $scope.projects.splice(0, $scope.projects.length);
 
                 var list = JSON.parse(projectList);
