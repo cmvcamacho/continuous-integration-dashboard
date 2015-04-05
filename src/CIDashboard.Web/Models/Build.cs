@@ -9,7 +9,6 @@ namespace CIDashboard.Web.Models
         public string Version { get; set; }
         public string Status { get; set; }
         public string Url { get; set; }
-        public bool Success { get; set; }
 
         public int NumberTestPassed { get; set; } //PassedTestCount
         public int NumberTestIgnored { get; set; } //IgnoredTestCount

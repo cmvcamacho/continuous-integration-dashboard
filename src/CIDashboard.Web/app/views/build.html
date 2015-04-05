@@ -1,10 +1,10 @@
 ﻿<div class="panel small {{ build.Status | buildStatusCss }}">
     <p class="text-center header">{{ build.Name }}</p>
-    <p class="details">Build:&nbsp;<span>{{ build.BuildNumber }}</span></p>
+    <p class="details">Build:&nbsp;<span>{{ build.Version }}</span></p>
     <p class="pull-right build-link">
         <a class="btn btn-link btn-xs" title="Open">
             <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>
         </a>
     </p>
-    <p class="details">Passed:&nbsp;<span>{{ build.Tests.Passed }}</span>&nbsp;&nbsp;Failed:&nbsp;<span>{{ build.Tests.Failed }}</span></p>
+    <p class="details">Passed:&nbsp;<span>{{ build.NumberTestPassed }}</span>&nbsp;&nbsp;Failed:&nbsp;<span>{{ NumberTestFailed }}</span></p>
 </div>

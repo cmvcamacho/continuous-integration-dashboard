@@ -1,11 +1,13 @@
-﻿namespace CIDashboard.Web.Infrastructure
+﻿using System.Threading.Tasks;
+
+namespace CIDashboard.Web.Infrastructure
 {
     public interface IRefreshInformation 
     {
-        void AddBuilds(string username, string connectionId);
-        
-        void RemoveBuilds(string connectionId);
+        Task AddBuilds(string username, string connectionId);
 
-        void RefreshBuilds();
+        Task RemoveBuilds(string connectionId);
+
+        Task RefreshBuilds();
     }
 }

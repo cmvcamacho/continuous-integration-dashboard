@@ -3,9 +3,10 @@ using System.Linq;
 using Autofac;
 using Autofac.Integration.SignalR;
 using AutoMapper;
-using CIDashboard.Data;
 using CIDashboard.Data.CompositionRoot;
 using CIDashboard.Data.Interfaces;
+using CIDashboard.Domain.CompositionRoot;
+using CIDashboard.Domain.CompositionRoot.Profilers;
 using CIDashboard.Web.CompositionRoot;
 using CIDashboard.Web.CompositionRoot.Profilers;
 using CIDashboard.Web.Hubs;
@@ -68,7 +69,11 @@ namespace CIDashboard.Web
 
         private void ConfigureMappers()
         {
-            Mapper.Initialize(cfg => cfg.AddProfile<DbToModelProfilers>());
+            Mapper.Initialize(cfg =>
+            {
+                cfg.AddProfile<DbToModelProfilers>();
+                cfg.AddProfile<TeamCityProfiler>();
+            });
         }
 
         private void ConfigureHangfireJobs(IAppBuilder app, IContainer container)

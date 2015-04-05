@@ -1,4 +1,5 @@
-﻿using CIDashboard.Web.Infrastructure;
+﻿using System.Threading.Tasks;
+using CIDashboard.Web.Infrastructure;
 using FluentAssertions;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -19,7 +20,20 @@ namespace CIDashboard.Web.Tests.Infrastructure
         }
 
         [Test]
-        public void AddBuildsQueryForProjectsWhenUserIsNew()
+        public async Task AddBuildsQueryForProjectsWhenUserIsNew()
+        {
+            var username = _fixture.Create<string>();
+            var connectionId = _fixture.Create<string>();
+
+            var refresh = new RefreshInformation();
+
+            await refresh.AddBuilds(username, connectionId);
+
+            RefreshInformation.BuildsPerConnId.ContainsKey(connectionId).Should().BeTrue();
+        }
+
+        [Test]
+        public async Task AddBuildsAddsOnlyNewBuilds()
         {
             var username = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
@@ -28,11 +42,12 @@ namespace CIDashboard.Web.Tests.Infrastructure
 
             refresh.AddBuilds(username, connectionId);
 
-            RefreshInformation.ProjectsPerConnId.ContainsKey(connectionId).Should().BeTrue();
+            RefreshInformation.BuildsPerConnId.ContainsKey(connectionId).Should().BeTrue();
+            Assert.Inconclusive("not done yet....");
         }
 
         [Test]
-        public void AddBuildsDontQueryForProjectsWhenUserAlreadyConnected()
+        public async Task AddBuildsDontQueryForProjectsWhenUserAlreadyConnected()
         {
             var username = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
@@ -42,21 +57,38 @@ namespace CIDashboard.Web.Tests.Infrastructure
             refresh.AddBuilds(username, connectionId);
 
             Assert.Inconclusive("not done yet....");
-            //RefreshInformation.ProjectsPerConnId.ContainsKey(connectionId).Should().BeFalse();
+            //RefreshInformation.BuildsPerConnId.ContainsKey(connectionId).Should().BeFalse();
         }
 
         [Test]
-        public void RemoveBuildsRemovesProjectsForConnectionId()
+        public async Task RemoveBuildsRemovesBuildsForConnectionId()
         {
             var username = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
 
             var refresh = new RefreshInformation();
             refresh.AddBuilds(username, connectionId);
-            RefreshInformation.ProjectsPerConnId.ContainsKey(connectionId).Should().BeTrue();
+            RefreshInformation.BuildsPerConnId.ContainsKey(connectionId).Should().BeTrue();
 
             refresh.RemoveBuilds(connectionId);
-            RefreshInformation.ProjectsPerConnId.ContainsKey(connectionId).Should().BeFalse();
+            RefreshInformation.BuildsPerConnId.ContainsKey(connectionId).Should().BeFalse();
+        }
+
+        [Test]
+        public async Task RemoveBuildsDontRemoveBuildWhenOtherUsersAreUsingIt()
+        {
+            var username = _fixture.Create<string>();
+            var connectionId = _fixture.Create<string>();
+
+            var refresh = new RefreshInformation();
+            refresh.AddBuilds(username, connectionId);
+            RefreshInformation.BuildsPerConnId.ContainsKey(connectionId).Should().BeTrue();
+
+            refresh.RemoveBuilds(connectionId);
+            RefreshInformation.BuildsPerConnId.ContainsKey(connectionId).Should().BeFalse();
+
+            Assert.Inconclusive("not done yet....");
+
         }
     }
 }

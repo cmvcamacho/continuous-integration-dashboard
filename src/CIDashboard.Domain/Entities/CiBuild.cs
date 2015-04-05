@@ -2,9 +2,10 @@
 
 namespace CIDashboard.Domain.Entities
 {
-    public class Build
+    public class CiBuild
     {
-        public string BuildId { get; set; }
+        public string SourceCi { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
         public string Version { get; set; }
         public string Status { get; set; }

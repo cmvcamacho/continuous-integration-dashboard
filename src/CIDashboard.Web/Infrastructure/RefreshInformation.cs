@@ -1,5 +1,8 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using CIDashboard.Data.Entities;
 using CIDashboard.Data.Interfaces;
@@ -14,16 +17,20 @@ namespace CIDashboard.Web.Infrastructure
     {
         private static readonly ILogger Logger = Log.ForContext<RefreshInformation>();
    
-        internal static ConcurrentDictionary<string, string> ProjectsPerConnId = new ConcurrentDictionary<string, string>();
+        internal static ConcurrentDictionary<string, List<string>> BuildsPerConnId = new ConcurrentDictionary<string, List<string>>();
+        internal static ConcurrentDictionary<string, string> Builds = new ConcurrentDictionary<string, string>();
 
         public ICiDashboardService CiDashboardService { get; set; }
 
-        public async void AddBuilds(string username, string connectionId)
+        public async Task AddBuilds(string username, string connectionId)
         {
-            if(!ProjectsPerConnId.ContainsKey(connectionId))
-            {
-                var projects = username;
-                ProjectsPerConnId.TryAdd(connectionId, projects);
+            var userProjects = await this.CiDashboardService.GetProjects(username);
+            var builds = userProjects
+                .SelectMany(p => p.Builds.Select(b => b.CiExternalId).ToList())
+                .ToList();
+            if (!BuildsPerConnId.ContainsKey(connectionId))
+            {                
+                BuildsPerConnId.TryAdd(connectionId, builds);
 
                 Logger.Debug("Start retrieving builds for {user} and {connectionId}", username, connectionId);
             }
@@ -32,30 +39,49 @@ namespace CIDashboard.Web.Infrastructure
                 Logger.Debug("Refresh builds for {user} and {connectionId}", username, connectionId);
             }
 
+            Parallel.ForEach(builds, build =>
+            {
+                if(!Builds.ContainsKey(build))
+                    Builds.TryAdd(build, build);
+            });
+
+
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
-            hubContext.Clients.Client(connectionId).sendMessage(new {Status = "Info", Message = "Your builds are being retrieved" });
-
-            var userProjects = await this.CiDashboardService.GetProjects(username);
-
-            hubContext.Clients.Client(connectionId).sendProjects(Mapper.Map<IEnumerable<Data.Entities.Project>, IEnumerable<Models.Project>>(userProjects).ToJson());
+            var mappedUserProjects = Mapper.Map<IEnumerable<Project>, IEnumerable<Models.Project>>(userProjects);
+            await Task.Run(async () => hubContext.Clients.Client(connectionId).sendProjects(mappedUserProjects.ToJson()));
+            await Task.Run(async () =>
+                        hubContext.Clients.Client(connectionId)
+                            .sendMessage(new {Status = "Info", Message = "Your builds are being retrieved"}));
         }
 
-        public void RemoveBuilds(string connectionId)
+        public async Task RemoveBuilds(string connectionId)
         {
-            string projects;
-            if (ProjectsPerConnId.ContainsKey(connectionId))
-                ProjectsPerConnId.TryRemove(connectionId, out projects);
+            var builds = new List<string>();
+            if (BuildsPerConnId.ContainsKey(connectionId))
+                BuildsPerConnId.TryRemove(connectionId, out builds);
+
+            Parallel.ForEach(builds, build =>
+            {
+                var exists = BuildsPerConnId.Values.SelectMany(b=>b).Contains(build);
+                if (!exists)
+                {
+                    string b;
+                    Builds.TryRemove(build, out b);
+                }
+            });
 
             Logger.Debug("Remove builds for {connectionId}", connectionId);
         }
 
-        public void RefreshBuilds()
+        public async Task RefreshBuilds()
         {
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
-            foreach (var connectionId in ProjectsPerConnId.Keys)
+            foreach (var connectionId in BuildsPerConnId.Keys)
             {
                 Logger.Debug("Refreshing builds for {connectionId}", connectionId);
-                hubContext.Clients.Client(connectionId).sendMessage(new { Status = "Info", Message = "Your builds are being refreshed" });
+                await Task.Run(async () =>
+                    hubContext.Clients.Client(connectionId)
+                        .sendMessage(new {Status = "Info", Message = "Your builds are being refreshed"}));
             }
         }
     }

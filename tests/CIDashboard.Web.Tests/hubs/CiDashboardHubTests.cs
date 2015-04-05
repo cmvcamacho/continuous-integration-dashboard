@@ -1,4 +1,5 @@
 ﻿using System.Security.Principal;
+using System.Threading.Tasks;
 using CIDashboard.Web.Hubs;
 using CIDashboard.Web.Infrastructure;
 using FakeItEasy;
@@ -34,7 +35,7 @@ namespace CIDashboard.Web.Tests.Hubs
         }
 
         [Test]
-        public void OnConnectEnqueueAddBuildsMethodToHangfire()
+        public async Task OnConnectEnqueueAddBuildsMethodToHangfire()
         {
             var username = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
@@ -44,7 +45,7 @@ namespace CIDashboard.Web.Tests.Hubs
 
             var hub = new CiDashboardHub(_backgroundJobClient, _refreshInformation) { Context = _context };
 
-            hub.OnConnected();
+            await hub.OnConnected();
 
             A.CallTo(() => _backgroundJobClient.Create(
                     A<Job>.That.Matches(job => job.Method.Name == "AddBuilds" && job.Arguments[0].Contains(username) && job.Arguments[1].Contains(connectionId)),
