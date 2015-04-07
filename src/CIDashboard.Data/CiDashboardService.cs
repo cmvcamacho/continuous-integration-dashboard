@@ -2,7 +2,6 @@
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using Autofac;
 using CIDashboard.Data.Entities;
 using CIDashboard.Data.Interfaces;
 

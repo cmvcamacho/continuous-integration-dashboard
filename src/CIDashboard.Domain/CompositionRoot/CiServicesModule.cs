@@ -1,5 +1,7 @@
-﻿using Autofac;
-using CIDashboard.Domain.Queries;
+﻿using System.Configuration;
+using Autofac;
+using CIDashboard.Domain.Services;
+using TeamCitySharp;
 
 namespace CIDashboard.Domain.CompositionRoot
 {
@@ -8,11 +10,22 @@ namespace CIDashboard.Domain.CompositionRoot
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<TeamCityService>()
-                .As<ICiServerService>()
+                .RegisterType<TeamCityClient>()
+                .As<ITeamCityClient>()
+                .WithParameter("hostName", ConfigurationManager.AppSettings["TeamcityHostname"])
+                .WithParameter("useSsl", bool.Parse(ConfigurationManager.AppSettings["TeamcityUseSsl"]))
                 .ExternallyOwned()
                 .PropertiesAutowired()
                 .InstancePerLifetimeScope();
+            builder
+                .RegisterType<TeamCityService>()
+                .As<ICiServerService>()
+                .WithParameter("username", ConfigurationManager.AppSettings["TeamcityUsername"])
+                .WithParameter("password", ConfigurationManager.AppSettings["TeamcityPassword"])
+                .ExternallyOwned()
+                .PropertiesAutowired()
+                .InstancePerLifetimeScope();
+
         }
     }
 }

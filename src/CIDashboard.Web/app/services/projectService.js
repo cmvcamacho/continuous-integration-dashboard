@@ -17,11 +17,15 @@
                 $rootScope.$emit('sendProjects', projectList);
             });
 
+            proxy.on('sendBuildResult', function (buildResult) {
+                $rootScope.$emit('sendBuildResult', buildResult);
+            });
+
             //Starting connection
             connection
                 .start()
                 .done(function () {
-                    console.log('Now connected, connection ID=' + $.connection.hub.id);
+                    console.log('Now connected, connection ID=' + connection.id);
                     toastr.success('Connection established');
                 })
                 .fail(function() {

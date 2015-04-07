@@ -63,20 +63,21 @@ namespace CIDashboard.Data
         {
 #if DEBUG
             if(!context.Projects.Any())
-            { 
+            {
+                var username = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
                 var projects = new List<Project>
                 {
                     new Project
                     {
                         Id = 1,
-                        User = @"CARLOSCAMAC5A25\carloscamacho",
-                        Name = "test1"
+                        User = username,
+                        Name = "MNP Framework"
                     },
                     new Project
                     {
                         Id = 2,
-                        User = @"CARLOSCAMAC5A25\carloscamacho",
-                        Name = "test2"
+                        User = username,
+                        Name = "OIS"
                     }
                 };
                 projects.First().Builds = new List<Build>
@@ -84,15 +85,15 @@ namespace CIDashboard.Data
                     new Build
                     {
                         Id = 1,
-                        CiExternalId = "1",
-                        Name = "test1",
+                        CiExternalId = "bt24",
+                        Name = "Mnp Jobs",
                         Project = projects.First()
                     },
                     new Build
                     {
                         Id = 2,
-                        CiExternalId = "1",
-                        Name = "test2",
+                        CiExternalId = "bt6",
+                        Name = "Mnp Services",
                         Project = projects.First()
                     }
                 };
@@ -101,15 +102,15 @@ namespace CIDashboard.Data
                     new Build
                     {
                         Id = 3,
-                        CiExternalId = "1",
-                        Name = "test3",
+                        CiExternalId = "OIS_Trunk_OisService",
+                        Name = "OIS Service",
                         Project = projects.Last()
                     },
                     new Build
                     {
                         Id = 4,
-                        CiExternalId = "1",
-                        Name = "test4",
+                        CiExternalId = "OIS_Trunk_AcceptanceTests_OisAcceptanceTestsDev6Nightly",
+                        Name = "OIS Acceptance Tests (dev6 Nightly)",
                         Project = projects.Last()
                     }
                 };

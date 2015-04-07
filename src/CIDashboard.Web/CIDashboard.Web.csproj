@@ -191,7 +191,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="CompositionRoot\Profilers\DbToModelProfilers.cs" />
+    <Compile Include="MappingProfiles\ViewModelProfilers.cs" />
     <Compile Include="CompositionRoot\WebModule.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
@@ -201,6 +201,7 @@
     <Compile Include="Infrastructure\IRefreshInformation.cs" />
     <Compile Include="Infrastructure\RefreshInformation.cs" />
     <Compile Include="Models\Build.cs" />
+    <Compile Include="Models\CiSource.cs" />
     <Compile Include="Models\Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -247,7 +248,11 @@
     <Content Include="Scripts\jasmine.js" />
     <Content Include="Scripts\jquery-2.1.3.js" />
     <Content Include="Scripts\jquery-2.1.3.min.js" />
+    <Content Include="Scripts\jquery-2.1.3.min.js.map">
+      <DependentUpon>jquery-2.1.3.min.js</DependentUpon>
+    </Content>
     <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.jrumble.1.3.js" />
     <Content Include="Scripts\jquery.signalR-2.2.0.js" />
     <Content Include="Scripts\jquery.signalR-2.2.0.min.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.js" />

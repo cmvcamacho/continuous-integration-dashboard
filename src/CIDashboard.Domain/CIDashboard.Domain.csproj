@@ -58,6 +58,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -70,13 +71,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompositionRoot\CiServicesModule.cs" />
-    <Compile Include="CompositionRoot\Profilers\TeamCityProfiler.cs" />
+    <Compile Include="MappingProfiles\TeamCityProfiler.cs" />
+    <Compile Include="Entities\CiBuildResult.cs" />
     <Compile Include="Entities\CiBuild.cs" />
     <Compile Include="Entities\CiProject.cs" />
+    <Compile Include="Entities\CiSource.cs" />
     <Compile Include="Extensions\JsonSerialize.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Queries\TeamCityService.cs" />
-    <Compile Include="Queries\ICiServerService.cs" />
+    <Compile Include="Services\TeamCityService.cs" />
+    <Compile Include="Services\ICiServerService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

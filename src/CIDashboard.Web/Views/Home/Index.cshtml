@@ -1,6 +1,6 @@
 ﻿<div class="container-fluid" ng-controller="ProjectController">
-    <div class="spinner">
-        <img src="~/Images/loading.gif"/>
+    <div class="spinner" ng-show="loading">
+        <img src="~/Images/loading.gif" />
     </div>
     
     <div data-ng-repeat="project in projects">

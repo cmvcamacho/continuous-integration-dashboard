@@ -1,10 +1,17 @@
-﻿namespace CIDashboard.Domain.Entities
+﻿using System.Collections.Generic;
+
+namespace CIDashboard.Domain.Entities
 {
     public class CiProject
     {
-        public string SourceCi { get; set; }
+        public CiSource CiSource { get; set; }
+
         public string Id { get; set; }
+
         public string Name { get; set; }
+
         public string Url { get; set; }
+
+        public IEnumerable<CiBuild> Builds { get; set; }
     }
 }

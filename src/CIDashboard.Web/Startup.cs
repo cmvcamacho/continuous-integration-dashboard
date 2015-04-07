@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Autofac;
 using Autofac.Integration.SignalR;
 using AutoMapper;
 using CIDashboard.Data.CompositionRoot;
 using CIDashboard.Data.Interfaces;
 using CIDashboard.Domain.CompositionRoot;
-using CIDashboard.Domain.CompositionRoot.Profilers;
+using CIDashboard.Domain.MappingProfiles;
 using CIDashboard.Web.CompositionRoot;
-using CIDashboard.Web.CompositionRoot.Profilers;
 using CIDashboard.Web.Hubs;
 using CIDashboard.Web.Infrastructure;
+using CIDashboard.Web.MappingProfiles;
 using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.AspNet.SignalR;
@@ -71,7 +72,7 @@ namespace CIDashboard.Web
         {
             Mapper.Initialize(cfg =>
             {
-                cfg.AddProfile<DbToModelProfilers>();
+                cfg.AddProfile<ViewModelProfilers>();
                 cfg.AddProfile<TeamCityProfiler>();
             });
         }

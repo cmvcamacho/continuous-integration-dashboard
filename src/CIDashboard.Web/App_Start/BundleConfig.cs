@@ -26,6 +26,9 @@ namespace CIDashboard.Web
             bundles.Add(new ScriptBundle("~/bundles/toastr").Include(
                     "~/Scripts/toastr.js"));
 
+            bundles.Add(new ScriptBundle("~/bundles/jrumble").Include(
+                    "~/Scripts/jquery.jrumble.1.3.js"));
+            
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
             // ready for production, use the build tool at http://modernizr.com to pick only the tests you need.
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(

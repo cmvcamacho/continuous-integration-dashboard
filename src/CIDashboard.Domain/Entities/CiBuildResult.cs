@@ -1,16 +1,36 @@
 ﻿using System;
+using System.ComponentModel;
 
-namespace CIDashboard.Web.Models
+namespace CIDashboard.Domain.Entities
 {
-    public class Build
+    public enum CiBuildResultStatus
     {
+        [Description("")]
+        Unknown = 0,
+
+        [Description("Success")]
+        Success = 1,
+
+        [Description("Failure")]
+        Failure = 2,
+
+        [Description("Building")]
+        Running = 3
+    }
+
+    public class CiBuildResult
+    {
+        public CiSource CiSource { get; set; }
+
+        public string Id { get; set; }
+
         public string BuildId { get; set; }
 
-        public string Name { get; set; }
+        public string BuildName { get; set; }
 
         public string Version { get; set; }
 
-        public string Status { get; set; }
+        public CiBuildResultStatus Status { get; set; }
 
         public string Url { get; set; }
 
@@ -47,6 +67,5 @@ namespace CIDashboard.Web.Models
                         2);
             }
         }
-
     }
 }

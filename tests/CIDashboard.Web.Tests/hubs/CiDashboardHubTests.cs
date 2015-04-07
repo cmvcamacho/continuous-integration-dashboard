@@ -3,9 +3,6 @@ using System.Threading.Tasks;
 using CIDashboard.Web.Hubs;
 using CIDashboard.Web.Infrastructure;
 using FakeItEasy;
-using Hangfire;
-using Hangfire.Common;
-using Hangfire.States;
 using Microsoft.AspNet.SignalR.Hubs;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -18,7 +15,6 @@ namespace CIDashboard.Web.Tests.Hubs
     {
         private IPrincipal _principal;
         private HubCallerContext _context;
-        private IBackgroundJobClient _backgroundJobClient;
         private IRefreshInformation _refreshInformation;
         private IFixture _fixture;
 
@@ -28,14 +24,13 @@ namespace CIDashboard.Web.Tests.Hubs
             _fixture = new Fixture()
                 .Customize(new AutoFakeItEasyCustomization());
 
-            _backgroundJobClient = A.Fake<IBackgroundJobClient>();
             _refreshInformation = A.Fake<IRefreshInformation>();
             _principal = A.Fake<IPrincipal>();
             _context = A.Fake<HubCallerContext>();
         }
 
         [Test]
-        public async Task OnConnectEnqueueAddBuildsMethodToHangfire()
+        public async Task OnConnectCallsAddBuildsOfRefreshInfoService()
         {
             var username = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
@@ -43,18 +38,16 @@ namespace CIDashboard.Web.Tests.Hubs
             A.CallTo(() => _context.ConnectionId).Returns(connectionId);
             A.CallTo(() => _context.User).Returns(_principal);
 
-            var hub = new CiDashboardHub(_backgroundJobClient, _refreshInformation) { Context = _context };
+            var hub = new CiDashboardHub(_refreshInformation) { Context = _context };
 
             await hub.OnConnected();
 
-            A.CallTo(() => _backgroundJobClient.Create(
-                    A<Job>.That.Matches(job => job.Method.Name == "AddBuilds" && job.Arguments[0].Contains(username) && job.Arguments[1].Contains(connectionId)),
-                    A<EnqueuedState>._))
+            A.CallTo(() => _refreshInformation.AddBuilds(username, connectionId))
                 .MustHaveHappened();
         }
 
         [Test]
-        public void OnReconnectedEnqueueAddBuildsMethodToHangfire()
+        public async Task OnReconnectedCallsAddBuildsOfRefreshInfoService()
         {
             var username = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
@@ -62,19 +55,16 @@ namespace CIDashboard.Web.Tests.Hubs
             A.CallTo(() => _context.ConnectionId).Returns(connectionId);
             A.CallTo(() => _context.User).Returns(_principal);
 
-            var hub = new CiDashboardHub(_backgroundJobClient, _refreshInformation) { Context = _context };
+            var hub = new CiDashboardHub(_refreshInformation) { Context = _context };
 
-            hub.OnReconnected();
+            await hub.OnReconnected();
 
-            A.CallTo(() => _backgroundJobClient.Create(
-                    A<Job>.That.Matches(job => job.Method.Name == "AddBuilds" && job.Arguments[0].Contains(username) && job.Arguments[1].Contains(connectionId)),
-                    A<EnqueuedState>._))
+            A.CallTo(() => _refreshInformation.AddBuilds(username, connectionId))
                 .MustHaveHappened();
         }
 
-
         [Test]
-        public void OnDisconnectedEnqueueRemoveBuildsMethodToHangfire()
+        public async Task OnDisconnectedCallsRemoveBuildsOfRefreshInfoService()
         {
             var username = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
@@ -82,13 +72,11 @@ namespace CIDashboard.Web.Tests.Hubs
             A.CallTo(() => _context.ConnectionId).Returns(connectionId);
             A.CallTo(() => _context.User).Returns(_principal);
 
-            var hub = new CiDashboardHub(_backgroundJobClient, _refreshInformation) { Context = _context };
+            var hub = new CiDashboardHub(_refreshInformation) { Context = _context };
 
-            hub.OnDisconnected(true);
+            await hub.OnDisconnected(true);
 
-            A.CallTo(() => _backgroundJobClient.Create(
-                    A<Job>.That.Matches(job => job.Method.Name == "RemoveBuilds" && job.Arguments[0].Contains(connectionId)),
-                    A<EnqueuedState>._))
+            A.CallTo(() => _refreshInformation.RemoveBuilds(connectionId))
                 .MustHaveHappened();
         }
     }
