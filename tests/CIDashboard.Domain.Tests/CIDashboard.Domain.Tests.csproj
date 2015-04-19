@@ -94,7 +94,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\CIDashboard.Domain\CIDashboard.Domain.csproj">
+    <ProjectReference Include="..\..\src\CIDashboard.Domain\CIDashboard.Domain.csproj">
       <Project>{22A52E3A-0775-4BE3-8A0D-51FF683221B3}</Project>
       <Name>CIDashboard.Domain</Name>
     </ProjectReference>

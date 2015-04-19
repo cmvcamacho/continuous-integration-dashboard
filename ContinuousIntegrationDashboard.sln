@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{93DF878E-1F0
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{75632300-B029-43EC-AF7D-83E437F49CE2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIDashboard.Domain.Tests", "CIDashboard.Domain.Tests\CIDashboard.Domain.Tests.csproj", "{EEEAC6F8-1511-4716-9683-EF78A22E68D1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIDashboard.Domain.Tests", "tests\CIDashboard.Domain.Tests\CIDashboard.Domain.Tests.csproj", "{EEEAC6F8-1511-4716-9683-EF78A22E68D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
