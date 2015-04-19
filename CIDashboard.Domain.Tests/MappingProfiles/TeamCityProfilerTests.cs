@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AutoMapper;
 using CIDashboard.Domain.Entities;
 using CIDashboard.Domain.MappingProfiles;
@@ -74,8 +71,8 @@ namespace CIDashboard.Domain.Tests.MappingProfiles
                 {
                     CiSource = CiSource.TeamCity,
                     Id = build.Id,
-                    BuildId = build.BuildConfig.Id,
-                    BuildName = build.BuildConfig.Name,
+                    BuildId = build.BuildType.Id,
+                    BuildName = build.BuildType.Name,
                     Url = build.WebUrl,
                     FinishDate = build.FinishDate,
                     StartDate = build.StartDate,

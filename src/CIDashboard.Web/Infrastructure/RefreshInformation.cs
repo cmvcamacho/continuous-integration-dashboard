@@ -83,23 +83,22 @@ namespace CIDashboard.Web.Infrastructure
                     hubContext.Clients.Client(connectionId).sendMessage(new { Status = "Info", Message = "Your builds are being refreshed" });
                 });
 
-            var lastBuildResultTasks = BuildsToBeRefreshed.Keys.Select(async buildId => await this.CiServerService.LastBuildResult(buildId));
-            var lastBuildResults = await Task.WhenAll(lastBuildResultTasks);
-
-            var mappedBuildResults = Mapper.Map<IEnumerable<CiBuildResult>, IEnumerable<Models.Build>>(lastBuildResults);
-
             Parallel.ForEach(
-                mappedBuildResults,
-                buildResult =>
+                BuildsToBeRefreshed.Keys,
+                async buildId =>
                 {
-                    var connIds = BuildsPerConnId.Where(b => b.Value.Contains(buildResult.BuildId)).Select(d => d.Key);
+                    var lastBuildResult = await this.CiServerService.LastBuildResult(buildId);
+                    var mappedBuildResult = Mapper.Map<CiBuildResult, Models.Build>(lastBuildResult);
+
+                    var connIds = BuildsPerConnId.Where(b => b.Value.Contains(mappedBuildResult.BuildId)).Select(d => d.Key);
 
                     Parallel.ForEach(
                         connIds,
                         connectionId =>
                         {
-                            Logger.Debug("Sending build result for {buildId} to {connectionId}", buildResult.BuildId, connectionId);
-                            hubContext.Clients.Client(connectionId).sendBuildResult(buildResult);
+                            Logger.Debug("Sending build result for {buildId} to {connectionId}", mappedBuildResult.BuildId,
+                                connectionId);
+                            hubContext.Clients.Client(connectionId).sendBuildResult(mappedBuildResult);
                         });
                 });
         }

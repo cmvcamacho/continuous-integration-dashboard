@@ -20,8 +20,8 @@ namespace CIDashboard.Domain.MappingProfiles
 
             Mapper.CreateMap<Build, CiBuildResult>()
                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Number))
-                .ForMember(dest => dest.BuildName, opt => opt.MapFrom(src => src.BuildConfig.Name))
-                .ForMember(dest => dest.BuildId, opt => opt.MapFrom(src => src.BuildConfig.Id))
+                .ForMember(dest => dest.BuildName, opt => opt.MapFrom(src => src.BuildType.Name))
+                .ForMember(dest => dest.BuildId, opt => opt.MapFrom(src => src.BuildType.Id))
                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.WebUrl))
                 .ForMember(
                     dest => dest.Status,

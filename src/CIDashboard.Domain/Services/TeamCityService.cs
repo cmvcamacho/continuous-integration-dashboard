@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using CIDashboard.Domain.Entities;
@@ -49,15 +50,90 @@ namespace CIDashboard.Domain.Services
 
         public async Task<CiBuildResult> LastBuildResult(string buildId)
         {
-            //return new CiBuildResult
-            //{
-            //    BuildId = buildId,
-            //    Status = CiBuildResultStatus.Success,
-            //    Version = "1.1.2.1",
-            //    BuildName = "awasas"
-            //};
-
+            // get last run build
             Logger.Debug("Retrieving from TeamCity last build for {buildId}", buildId);
+            var build = await GetLastBuild(buildId);
+            if(build == null)
+            {
+                return null;
+            }
+
+            // get build run details
+            Logger.Debug("Retrieving from TeamCity build details for {build.Id}", build.Id);
+            var buildDetails = await GetBuildDetails(build);
+
+            var mappedBuild = Mapper.Map<Build, CiBuildResult>(buildDetails);
+
+            // get build run statistics
+            Logger.Debug("Retrieving from TeamCity build statistics for {build.Id}", build.Id);
+            var buildStats = await GetBuildStatistics(build);
+            if (buildStats != null)
+            {
+                var dict = buildStats.ToDictionary(item => item.Name, item => item.Value);
+                int value;
+                if (dict.ContainsKey("PassedTestCount") && int.TryParse(dict["PassedTestCount"], out value))
+                    mappedBuild.NumberTestPassed = value;
+                if (dict.ContainsKey("FailedTestCount") && int.TryParse(dict["FailedTestCount"], out value))
+                    mappedBuild.NumberTestFailed = value;
+                if (dict.ContainsKey("IgnoredTestCount") && int.TryParse(dict["IgnoredTestCount"], out value))
+                    mappedBuild.NumberTestIgnored = value;
+
+                if (dict.ContainsKey("CodeCoverageAbsSCovered") && int.TryParse(dict["CodeCoverageAbsSCovered"], out value))
+                    mappedBuild.NumberStatementsCovered = value;
+                if (dict.ContainsKey("CodeCoverageAbsSTotal") && int.TryParse(dict["CodeCoverageAbsSTotal"], out value))
+                    mappedBuild.NumberStatementsTotal = value;
+            }
+
+            // check if a build for it is running
+            if (await IsRunningABuild(buildId))
+                mappedBuild.Status = CiBuildResultStatus.Running;
+
+            // TODO: check if a build for it is queued
+
+
+            return mappedBuild;
+        }
+
+        private async Task<List<Property>> GetBuildStatistics(Build build)
+        {
+            var buildStats = await Task.Run(
+                () =>
+                {
+                    try
+                    {
+                        return _client.Statistics.GetByBuildId(build.Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex, "Error retrieving from TeamCity build statistics for {build.Id}", build.Id);
+                    }
+
+                    return null;
+                });
+            return buildStats;
+        }
+
+        private async Task<Build> GetBuildDetails(Build build)
+        {
+            var buildDetails = await Task.Run(
+                () =>
+                {
+                    try
+                    {
+                        return _client.Builds.ByBuildId(build.Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex, "Error retrieving from TeamCity build details for {build.Id}", build.Id);
+                    }
+
+                    return null;
+                });
+            return buildDetails;
+        }
+
+        private async Task<Build> GetLastBuild(string buildId)
+        {
             var build = await Task.Run(
                 () =>
                 {
@@ -65,42 +141,35 @@ namespace CIDashboard.Domain.Services
                     {
                         return _client.Builds.LastBuildByBuildConfigId(buildId);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         Logger.Error(ex, "Error retrieving from TeamCity last build for {buildId}", buildId);
                     }
 
                     return null;
                 });
-            if(build == null)
-            {
-                return null;
-            }
+            return build;
+        }
 
-            var mappedBuild = Mapper.Map<Build, CiBuildResult>(build);
-
+        private async Task<bool> IsRunningABuild(string buildId)
+        {
             Logger.Debug("Retrieving from TeamCity if {buildId} is running", buildId);
-            var isBuildRunning = await Task.Run(() =>
-                                {
-                    try
-                    {
-                        return _client
-                            .Builds
-                            .ByBuildLocator(BuildLocator.WithDimensions(buildType: BuildTypeLocator.WithId(mappedBuild.BuildId), running: true))
-                                .Count > 0;
-                    }
-                    catch(Exception ex)
-                    {
-                        Logger.Error(ex, "Error retrieving from TeamCity if {buildId} is running", buildId);
-                    }
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    return _client
+                        .Builds
+                        .ByBuildLocator(BuildLocator.WithDimensions(buildType: BuildTypeLocator.WithId(buildId), running: true))
+                        .Count > 0;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "Error retrieving from TeamCity if {buildId} is running", buildId);
+                }
 
-                    return false;
-                });
-
-            if (isBuildRunning)
-                mappedBuild.Status = CiBuildResultStatus.Running;
-
-            return mappedBuild;
+                return false;
+            });
         }
     }
 }

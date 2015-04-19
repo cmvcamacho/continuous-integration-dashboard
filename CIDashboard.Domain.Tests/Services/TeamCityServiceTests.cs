@@ -95,6 +95,9 @@ namespace CIDashboard.Domain.Tests.Services
             A.CallTo(() => _teamcityClient.Builds.LastBuildByBuildConfigId(buildId))
                 .Returns(build);
 
+            A.CallTo(() => _teamcityClient.Builds.ByBuildId(build.Id))
+                .Returns(build);
+
             var teamCityService = new TeamCityService(_teamcityClient);
             var result = await teamCityService.LastBuildResult(buildId);
 
@@ -102,13 +105,63 @@ namespace CIDashboard.Domain.Tests.Services
             {
                 CiSource = CiSource.TeamCity,
                 Id = build.Id,
-                BuildId = build.BuildConfig.Id,
-                BuildName = build.BuildConfig.Name,
+                BuildId = build.BuildType.Id,
+                BuildName = build.BuildType.Name,
                 Url = build.WebUrl,
                 FinishDate = build.FinishDate,
                 StartDate = build.StartDate,
                 Version = build.Number,
                 Status = resultStatus
+            };
+
+            result.ShouldBeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public async Task LastBuildResultReturnsStatisticsCorrectlyMapped()
+        {
+            var buildId = _fixture.Create<string>();
+            var build = _fixture
+                .Build<Build>()
+                .With(b => b.Status, "SUCCESS")
+                .Create();
+
+            A.CallTo(() => _teamcityClient.Builds.LastBuildByBuildConfigId(buildId))
+                .Returns(build);
+
+            A.CallTo(() => _teamcityClient.Builds.ByBuildId(build.Id))
+                .Returns(build);
+
+            var stats = new List<Property>
+            {
+                new Property{Name = "PassedTestCount", Value = "1"},
+                new Property{Name = "FailedTestCount", Value = "2"},
+                new Property{Name = "IgnoredTestCount", Value = "3"},
+                new Property{Name = "CodeCoverageAbsSCovered", Value = "4"},
+                new Property{Name = "CodeCoverageAbsSTotal", Value = "5"},
+            };
+            A.CallTo(() => _teamcityClient.Statistics.GetByBuildId(build.Id))
+                .Returns(stats);
+
+            var teamCityService = new TeamCityService(_teamcityClient);
+            var result = await teamCityService.LastBuildResult(buildId);
+
+            var expectedResult = new CiBuildResult
+            {
+                CiSource = CiSource.TeamCity,
+                Id = build.Id,
+                BuildId = build.BuildType.Id,
+                BuildName = build.BuildType.Name,
+                Url = build.WebUrl,
+                FinishDate = build.FinishDate,
+                StartDate = build.StartDate,
+                Version = build.Number,
+                Status = CiBuildResultStatus.Success,
+                NumberTestPassed = 1,
+                NumberTestFailed = 2,
+                NumberTestIgnored = 3,
+                NumberStatementsCovered = 4,
+                NumberStatementsTotal = 5
             };
 
             result.ShouldBeEquivalentTo(expectedResult);
@@ -125,6 +178,9 @@ namespace CIDashboard.Domain.Tests.Services
             A.CallTo(() => _teamcityClient.Builds.LastBuildByBuildConfigId(buildId))
                 .Returns(build);
 
+            A.CallTo(() => _teamcityClient.Builds.ByBuildId(build.Id))
+                .Returns(build);
+
             A.CallTo(() => 
                 _teamcityClient.Builds.ByBuildLocator(A<BuildLocator>.Ignored))
                 .Returns(_fixture.Build<Build>().CreateMany().ToList());
@@ -136,8 +192,8 @@ namespace CIDashboard.Domain.Tests.Services
             {
                 CiSource = CiSource.TeamCity,
                 Id = build.Id,
-                BuildId = build.BuildConfig.Id,
-                BuildName = build.BuildConfig.Name,
+                BuildId = build.BuildType.Id,
+                BuildName = build.BuildType.Name,
                 Url = build.WebUrl,
                 FinishDate = build.FinishDate,
                 StartDate = build.StartDate,
