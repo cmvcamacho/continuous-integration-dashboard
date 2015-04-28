@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using CIDashboard.Data.Entities;
 using CIDashboard.Data.Interfaces;
+using CIDashboard.Domain.Services;
 using CIDashboard.Web.Infrastructure;
 using CIDashboard.Web.MappingProfiles;
 using FakeItEasy;
@@ -18,6 +20,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
     {
         private IFixture _fixture;
         private ICiDashboardService _ciDashboardService;
+        private ICiServerService _ciServerService;
 
         [SetUp]
         public void Setup()
@@ -28,6 +31,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
                 .Customize(new AutoFakeItEasyCustomization());
 
             _ciDashboardService = A.Fake<ICiDashboardService>();
+            _ciServerService = A.Fake<ICiServerService>();
 
             RefreshInformation.BuildsPerConnId.Clear();
             RefreshInformation.BuildsToBeRefreshed.Clear();
@@ -209,6 +213,86 @@ namespace CIDashboard.Web.Tests.Infrastructure
             RefreshInformation.BuildsPerConnId.Keys.Should().Contain(new[] { otherConnectionId });
             RefreshInformation.BuildsToBeRefreshed.Should().ContainKeys(otherBuildsIds.ToArray());
             RefreshInformation.BuildsToBeRefreshed.Should().ContainKey(duplicateBuildId);
+        }
+
+        [Test]
+        public async Task RefreshBuildsWithNullConnectionIdCallLastBuildResultForAllBuilds()
+        {
+            var buildsProj1 = _fixture
+                .Build<Build>()
+                .Without(p => p.Project)
+                .CreateMany();
+             var buildsIds1 = buildsProj1.Select(b => b.CiExternalId)
+                 .ToList();
+             var buildsProj2 = _fixture
+                  .Build<Build>()
+                  .Without(p => p.Project)
+                  .CreateMany();
+             var buildsIds2 = buildsProj2.Select(b => b.CiExternalId)
+                 .ToList();
+
+            var buildsIds = new List<string>();
+            buildsIds.AddRange(buildsIds1); 
+            buildsIds.AddRange(buildsIds2);
+
+             var refresh = new RefreshInformation();
+             refresh.CiServerService = _ciServerService;
+             RefreshInformation.BuildsPerConnId.AddOrUpdate(_fixture.Create<string>(), buildsIds1, (oldkey, oldvalue) => buildsIds1);
+             RefreshInformation.BuildsPerConnId.AddOrUpdate(_fixture.Create<string>(), buildsIds2, (oldkey, oldvalue) => buildsIds1);
+             Parallel.ForEach(buildsIds,
+                 build => RefreshInformation.BuildsToBeRefreshed.TryAdd(build, build));
+
+            await refresh.RefreshBuilds(null);
+
+            foreach(var buildsId in buildsIds)
+            {
+                A.CallTo(() => _ciServerService.LastBuildResult(buildsId))
+                    .MustHaveHappened();
+            }
+        }
+        
+        [Test]
+        public async Task RefreshBuildsWithConnectionIdCallLastBuildResultForSpecificConnectionIdBuilds()
+        {
+            var buildsProj1 = _fixture
+                .Build<Build>()
+                .Without(p => p.Project)
+                .CreateMany();
+            var buildsIds1 = buildsProj1.Select(b => b.CiExternalId)
+                .ToList();
+            var buildsProj2 = _fixture
+                 .Build<Build>()
+                 .Without(p => p.Project)
+                 .CreateMany();
+            var buildsIds2 = buildsProj2.Select(b => b.CiExternalId)
+                .ToList();
+
+            var buildsIds = new List<string>();
+            buildsIds.AddRange(buildsIds1);
+            buildsIds.AddRange(buildsIds2);
+
+            var connectionId = _fixture.Create<string>();
+
+            var refresh = new RefreshInformation();
+            refresh.CiServerService = _ciServerService;
+            RefreshInformation.BuildsPerConnId.AddOrUpdate(connectionId, buildsIds1, (oldkey, oldvalue) => buildsIds1);
+            RefreshInformation.BuildsPerConnId.AddOrUpdate(_fixture.Create<string>(), buildsIds2, (oldkey, oldvalue) => buildsIds1);
+            Parallel.ForEach(buildsIds,
+                build => RefreshInformation.BuildsToBeRefreshed.TryAdd(build, build));
+
+            await refresh.RefreshBuilds(connectionId);
+
+            foreach (var buildsId in buildsIds1)
+            {
+                A.CallTo(() => _ciServerService.LastBuildResult(buildsId))
+                    .MustHaveHappened();
+            }
+
+            foreach (var buildsId in buildsIds2)
+            {
+                A.CallTo(() => _ciServerService.LastBuildResult(buildsId))
+                    .MustNotHaveHappened();
+            }
         }
     }
 }

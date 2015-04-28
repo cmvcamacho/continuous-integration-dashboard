@@ -4,6 +4,11 @@
     /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
 }
 
+
+.projects .panel-heading .panel-title {
+    font-size: 16px;
+}
+
 .builds {
   margin-bottom: 0;
   padding-left: 0;
@@ -11,20 +16,24 @@
 }
 
 .builds li .panel-success {
-    background-color: #00bc8c;
+    background-color: #51a351;
 }
 
 .builds li .panel-danger {
-    background-color: #e74c3c;
+    background-color: #bd362f;
 }
 
 .builds li .panel-primary {
-    background-color: #64BEFA;
+    background-color: #2f96b4;
 }
 
 .builds li .panel-info {
     background-color: #5e676d;
 }
+.builds li .panel .header {
+    font-weight: bold;
+}
+
 .builds li .panel .header {
     font-weight: bold;
 }
@@ -83,4 +92,37 @@
   width: 128px;
   height: 128px;
   position: relative;
+}
+
+/* refresh */
+.editMode {
+    color: #51a351;
+}
+
+/* refresh */
+.glyphicon-spin {
+    -webkit-animation: spin 1500ms infinite linear;
+    animation: spin 1500ms infinite linear;
+    color: #51a351;
+}
+
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
 }

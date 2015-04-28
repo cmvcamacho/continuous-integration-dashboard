@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using CIDashboard.Data.Entities;
@@ -72,40 +73,54 @@ namespace CIDashboard.Web.Infrastructure
             Logger.Debug("Remove builds for {connectionId}", connectionId);
         }
 
-        public async Task RefreshBuildsAsync()
+        public async Task RefreshBuilds(string connectionId)
         {
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
 
-            Parallel.ForEach(BuildsPerConnId.Keys,
-                connectionId =>
+            var connectionIdToRefresh = string.IsNullOrEmpty(connectionId)
+                ? BuildsPerConnId.Keys
+                : new List<string> { connectionId };
+            Parallel.ForEach(connectionIdToRefresh,
+                connId =>
                 {
-                    Logger.Debug("Refreshing build result for {connectionId}", connectionId);
-                    hubContext.Clients.Client(connectionId).sendMessage(new { Status = "Info", Message = "Your builds are being refreshed" });
+                    Logger.Debug("Refreshing build result for {connectionId}", connId);
+                    hubContext.Clients.Client(connId).sendMessage(new { Status = "Info", Message = "Your builds are being refreshed" });
+                    hubContext.Clients.Client(connId).startRefresh(new { Status = "start" });
                 });
 
-            Parallel.ForEach(
-                BuildsToBeRefreshed.Keys,
-                async buildId =>
-                {
-                    var lastBuildResult = await this.CiServerService.LastBuildResult(buildId);
-                    var mappedBuildResult = Mapper.Map<CiBuildResult, Models.Build>(lastBuildResult);
+            var buildsToRefresh = string.IsNullOrEmpty(connectionId)
+                ? BuildsToBeRefreshed.Keys
+                : BuildsPerConnId[connectionId];
+            var buildsToRetrieve = buildsToRefresh
+                .Select(buildId => this.GetLastBuildResult(hubContext, buildId))
+                .ToList();
 
-                    var connIds = BuildsPerConnId.Where(b => b.Value.Contains(mappedBuildResult.BuildId)).Select(d => d.Key);
-
-                    Parallel.ForEach(
-                        connIds,
-                        connectionId =>
-                        {
-                            Logger.Debug("Sending build result for {buildId} to {connectionId}", mappedBuildResult.BuildId,
-                                connectionId);
-                            hubContext.Clients.Client(connectionId).sendBuildResult(mappedBuildResult);
-                        });
-                });
+            await Task.WhenAll(buildsToRetrieve);
+            hubContext.Clients.All.stopRefresh(new { Status = "stop" });
         }
 
-        public void RefreshBuilds()
+        // only needed because only Hangfire pro supports async calls
+        public void RefreshBuildsSync()
         {
-            RefreshBuildsAsync().Wait();
+            RefreshBuilds(null).Wait();
         }
+
+        private async Task GetLastBuildResult(IHubContext hubContext, string buildId)
+        {
+            var lastBuildResult = await this.CiServerService.LastBuildResult(buildId);
+            var mappedBuildResult = Mapper.Map<CiBuildResult, Models.Build>(lastBuildResult);
+
+            var connIds = BuildsPerConnId.Where(b => b.Value.Contains(mappedBuildResult.BuildId)).Select(d => d.Key);
+
+            foreach (var connectionId in connIds)
+            {
+                Logger.Debug(
+                    "Sending build result for {buildId} to {connectionId}",
+                    mappedBuildResult.BuildId,
+                    connectionId);
+                hubContext.Clients.Client(connectionId).sendBuildResult(mappedBuildResult);
+            }
+        }
+
     }
 }

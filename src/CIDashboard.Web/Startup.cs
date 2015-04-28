@@ -88,7 +88,7 @@ namespace CIDashboard.Web
                 configHangfire.UseServer();
             });
             
-            RecurringJob.AddOrUpdate("RefreshBuilds", () => container.Resolve<IRefreshInformation>().RefreshBuilds(), Cron.Minutely);
+            RecurringJob.AddOrUpdate("RefreshBuilds", () => container.Resolve<IRefreshInformation>().RefreshBuildsSync(), Cron.Minutely);
         }
 
         private void ConfigureLog()

@@ -209,10 +209,13 @@
   <ItemGroup>
     <Content Include="app\app.js" />
     <Content Include="app\controllers.js" />
+    <Content Include="app\controllers\EditController.js" />
     <Content Include="app\controllers\ProjectController.js" />
     <Content Include="app\filters.js" />
+    <Content Include="app\services\editService.js" />
     <Content Include="app\services\projectService.js" />
     <Content Include="app\services.js" />
+    <Content Include="app\services\signalrService.js" />
     <Content Include="app\tests\filtersTests.js" />
     <Content Include="app\tests\projectServiceTests.js" />
     <Content Include="app\tests\projectControllerTests.js" />

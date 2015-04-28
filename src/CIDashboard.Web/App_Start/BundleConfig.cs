@@ -49,8 +49,11 @@ namespace CIDashboard.Web
                 "~/app/services.js",
                 "~/app/controllers.js",
                 "~/app/filters.js",
+                "~/app/services/signalrService.js",
                 "~/app/services/projectService.js",
-                "~/app/controllers/ProjectController.js"
+                "~/app/services/editService.js",
+                "~/app/controllers/ProjectController.js",
+                "~/app/controllers/EditController.js"
                 ));
         }
     }

@@ -79,5 +79,20 @@ namespace CIDashboard.Web.Tests.Hubs
             A.CallTo(() => _refreshInformation.RemoveBuilds(connectionId))
                 .MustHaveHappened();
         }
+
+        [Test]
+        public async Task RequestRefreshCallsRefreshBuildsForConnectionIdOnly()
+        {
+            var connectionId = _fixture.Create<string>();
+            A.CallTo(() => _context.ConnectionId).Returns(connectionId);
+
+            var hub = new CiDashboardHub(_refreshInformation) { Context = _context };
+
+            await hub.RequestRefresh();
+
+            A.CallTo(() => _refreshInformation.RefreshBuilds(connectionId))
+                .MustHaveHappened();
+        }
+
     }
 }

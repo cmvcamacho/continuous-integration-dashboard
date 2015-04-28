@@ -2,7 +2,7 @@
     'use strict';
 
     var app = angular.module('controllers')
-        .controller('ProjectController', ['$scope', '$projectsService', function ($scope, $projectsService) {
+        .controller('ProjectController', ['$scope', '$projectsService', '$rootScope', function ($scope, $projectsService, $rootScope) {
 
             $projectsService.initialize();
 
@@ -30,6 +30,7 @@
                     for (var j = 0; j < $scope.projects[i].Builds.length; j++) {
                         if ($scope.projects[i].Builds[j].BuildId === buildResult.BuildId) {
                             $scope.projects[i].Builds[j] = buildResult;
+                            toastr.success(buildResult.Name + " updated!");
                             //$('#build_' + buildResult.BuildId).jrumble({ speed: 0 });
                             //$('#build_' + buildResult.BuildId).trigger('startRumble');
                             return;

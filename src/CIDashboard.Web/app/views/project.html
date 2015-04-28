@@ -1,6 +1,9 @@
-﻿<div class="panel panel-default">
+﻿<div class="panel panel-default projects">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ project.Name }}&nbsp;&nbsp;<span class="badge">{{ project.NoBuild }}</span></h3>
+        <h4 class="panel-title">
+            {{ project.Name }}&nbsp;&nbsp;<span class="badge">{{ project.NoBuild }}</span>
+            <span ng-show="editMode">&nbsp;&nbsp;add build</span>
+        </h4>
     </div>
     <div class="panel-body">
         <ul class="row builds">

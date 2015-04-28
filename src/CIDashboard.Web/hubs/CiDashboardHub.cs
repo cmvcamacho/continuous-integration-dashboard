@@ -56,9 +56,10 @@ namespace CIDashboard.Web.Hubs
             await base.OnReconnected();
         }
 
-        //public void Hello()
-        //{
-        //    Clients.All.hello("1");
-        //}
+        public async Task RequestRefresh()
+        {
+            var connectionId = Context.ConnectionId;
+            await _refreshInformation.RefreshBuilds(connectionId);
+        }
     }
 }

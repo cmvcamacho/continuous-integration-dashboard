@@ -1,21 +1,21 @@
 ﻿ <!-- Navigation -->
-<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation" ng-controller="EditController">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">Teamcity Dashboard</a>
+            <a class="navbar-brand" href="#">Continuous Integration Dashboard</a>
         </div>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav navbar-right">
                 <li>
-                    <a class="btn btn-link btn-lg" title="Refresh">
-                        <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                    <a class="btn btn-link btn-lg" title="Refresh" ng-click="startRefresh()">
+                        <span class="glyphicon glyphicon-refresh" ng-class="{true:'glyphicon-spin', false:'' }[refreshing]" aria-hidden="true"></span>
                     </a>
                 </li>
                 <li>
-                    <a class="btn btn-link btn-lg" title="Settings">
-                        <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+                    <a class="btn btn-link btn-lg" title="Customize" ng-click="toggleEditMode()">
+                        <span class="glyphicon glyphicon-menu-hamburger" ng-class="{true:'editMode', false:'' }[editMode]" aria-hidden="true"></span>
                     </a>
                 </li>
             </ul>

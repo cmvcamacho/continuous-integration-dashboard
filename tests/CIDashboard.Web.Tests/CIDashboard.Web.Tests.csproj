@@ -185,6 +185,10 @@
       <Project>{0B2607BB-4D3E-40C9-A190-911B13B47C18}</Project>
       <Name>CIDashboard.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\CIDashboard.Domain\CIDashboard.Domain.csproj">
+      <Project>{22A52E3A-0775-4BE3-8A0D-51FF683221B3}</Project>
+      <Name>CIDashboard.Domain</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\CIDashboard.Web\CIDashboard.Web.csproj">
       <Project>{98d7f5fe-bdfd-468f-bfc6-b8d457d52a60}</Project>
       <Name>CIDashboard.Web</Name>

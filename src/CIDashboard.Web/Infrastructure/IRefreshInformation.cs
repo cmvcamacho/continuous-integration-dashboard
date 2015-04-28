@@ -8,8 +8,8 @@ namespace CIDashboard.Web.Infrastructure
 
         Task RemoveBuilds(string connectionId);
 
-        Task RefreshBuildsAsync();
+        Task RefreshBuilds(string connectionId);
 
-        void RefreshBuilds();
+        void RefreshBuildsSync();
     }
 }

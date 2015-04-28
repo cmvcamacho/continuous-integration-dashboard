@@ -1,37 +1,23 @@
 ﻿(function () {
     'use strict';
-    angular.module('services').factory('$projectsService', function ($, $rootScope) {
-        var proxy;
-        var connection;
+    angular.module('services').factory('$projectsService', ['$signalrService', '$rootScope', function (signalrService, $rootScope) {
 
         var initialize = function () {
             //Getting the connection object
-            connection = $.hubConnection();
-            proxy = connection.createHubProxy('ciDashboardHub');
+            signalrService.initialize();
 
-            proxy.on('sendMessage', function (message) {
+            signalrService.getProxy().on('sendMessage', function (message) {
                 $rootScope.$emit('sendMessage', message);
             });
 
-            proxy.on('sendProjects', function (projectList) {
+            signalrService.getProxy().on('sendProjects', function (projectList) {
                 $rootScope.$emit('sendProjects', projectList);
             });
 
-            proxy.on('sendBuildResult', function (buildResult) {
+            signalrService.getProxy().on('sendBuildResult', function (buildResult) {
                 $rootScope.$emit('sendBuildResult', buildResult);
             });
 
-            //Starting connection
-            connection
-                .start()
-                .done(function () {
-                    console.log('Now connected, connection ID=' + connection.id);
-                    toastr.success('Connection established');
-                })
-                .fail(function() {
-                     console.log('Could not Connect!');
-                     toastr.error('Connection failed');
-                });
         };
 
         //var sendRequest = function () {
@@ -44,5 +30,5 @@
             initialize: initialize,
             //sendRequest: sendRequest,
         };
-    });
+    }]);
 }());

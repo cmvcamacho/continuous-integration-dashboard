@@ -5,7 +5,9 @@
         'controllers',
         'services',
         'filters'
-    ]);
+    ]).run(function($rootScope) {
+        $rootScope.editMode = false;
+    });
     app.value('$', $);
 
     toastr.options = {
