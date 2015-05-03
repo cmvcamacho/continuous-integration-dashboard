@@ -83,7 +83,17 @@
     color: white;
 }
 
+.topRight {
+    position: absolute;
+    top: 2px;
+    right: 20px;
+}
 
+.addProjectBtn {
+    position: fixed;
+    top: 75px;
+    right: 10px;    
+}
 
 
 /* loading */
