@@ -75,28 +75,36 @@ namespace CIDashboard.Web.Infrastructure
 
         public async Task RefreshBuilds(string connectionId)
         {
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
+            try
+            {
+                var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
 
-            var connectionIdToRefresh = string.IsNullOrEmpty(connectionId)
-                ? BuildsPerConnId.Keys
-                : new List<string> { connectionId };
-            Parallel.ForEach(connectionIdToRefresh,
-                connId =>
-                {
-                    Logger.Debug("Refreshing build result for {connectionId}", connId);
-                    hubContext.Clients.Client(connId).sendMessage(new { Status = "Info", Message = "Your builds are being refreshed" });
-                    hubContext.Clients.Client(connId).startRefresh(new { Status = "start" });
-                });
+                var connectionIdToRefresh = string.IsNullOrEmpty(connectionId)
+                    ? BuildsPerConnId.Keys
+                    : new List<string> {connectionId};
+                Parallel.ForEach(connectionIdToRefresh,
+                    connId =>
+                    {
+                        Logger.Debug("Refreshing build result for {connectionId}", connId);
+                        hubContext.Clients.Client(connId)
+                            .sendMessage(new {Status = "Info", Message = "Your builds are being refreshed"});
+                        hubContext.Clients.Client(connId).startRefresh(new {Status = "start"});
+                    });
 
-            var buildsToRefresh = string.IsNullOrEmpty(connectionId)
-                ? BuildsToBeRefreshed.Keys
-                : BuildsPerConnId[connectionId];
-            var buildsToRetrieve = buildsToRefresh
-                .Select(buildId => this.GetLastBuildResult(hubContext, buildId))
-                .ToList();
+                var buildsToRefresh = string.IsNullOrEmpty(connectionId)
+                    ? BuildsToBeRefreshed.Keys
+                    : BuildsPerConnId[connectionId];
+                var buildsToRetrieve = buildsToRefresh
+                    .Select(buildId => this.GetLastBuildResult(hubContext, buildId))
+                    .ToList();
 
-            await Task.WhenAll(buildsToRetrieve);
-            hubContext.Clients.All.stopRefresh(new { Status = "stop" });
+                await Task.WhenAll(buildsToRetrieve);
+                hubContext.Clients.All.stopRefresh(new {Status = "stop"});
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Error refreshing builds...");
+            }
         }
 
         // only needed because only Hangfire pro supports async calls

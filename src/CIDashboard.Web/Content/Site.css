@@ -88,13 +88,14 @@
 
 /* loading */
 .spinner {
-  margin: 100px auto;
-  width: 128px;
-  height: 128px;
-  position: relative;
+    margin: 100px auto;
+    width: 128px;
+    height: 128px;
+    position: relative;
+    font-size: 120px;
 }
 
-/* refresh */
+/* edit mode */
 .editMode {
     color: #51a351;
 }
