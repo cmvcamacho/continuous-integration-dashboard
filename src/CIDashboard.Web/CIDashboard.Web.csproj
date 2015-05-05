@@ -228,6 +228,7 @@
     <Content Include="Content\jasmine.css" />
     <Content Include="Content\toastr.css" />
     <Content Include="Content\toastr.min.css" />
+    <Content Include="Content\xeditable.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -268,6 +269,7 @@
     <Content Include="Scripts\npm.js" />
     <Content Include="Scripts\toastr.js" />
     <Content Include="Scripts\toastr.min.js" />
+    <Content Include="Scripts\xeditable.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>

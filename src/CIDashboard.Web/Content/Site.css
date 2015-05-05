@@ -4,10 +4,22 @@
     /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
 }
 
+.navbar-nav > li > button {
+  margin-top: 10px;
+  line-height: 21px;
+}
+
+@media (min-width: 768px) {
+  .navbar-nav > li > button {
+    margin-top: 19.5px;
+  }
+}
+
 
 .projects .panel-heading .panel-title {
     font-size: 16px;
 }
+
 
 .builds {
   margin-bottom: 0;
@@ -87,17 +99,6 @@
     position: absolute;
     top: 2px;
     right: 20px;
-}
-
-.navbar-nav > li > button {
-  margin-top: 10px;
-  line-height: 21px;
-}
-
-@media (min-width: 768px) {
-  .navbar-nav > li > button {
-    margin-top: 19.5px;
-  }
 }
 
 

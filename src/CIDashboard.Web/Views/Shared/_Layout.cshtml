@@ -9,7 +9,7 @@
  
     <title>Teamcity dashboard</title>
     @Styles.Render("~/Bootstrap/css")
-    @Styles.Render("~/Toastr/css")
+    @Styles.Render("~/Helpers/css")
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     
@@ -30,11 +30,8 @@
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/angularjs")
     @Scripts.Render("~/bundles/bootstrap")
-    @Scripts.Render("~/bundles/toastr")
-    @Scripts.Render("~/bundles/jrumble")
+    @Scripts.Render("~/bundles/helpers")
     @Scripts.Render("~/bundles/signalr")
-
-
     @Scripts.Render("~/bundles/application")
 
     @RenderSection("scripts", required: false)

@@ -2,10 +2,17 @@
     'use strict';
 
     var app = angular.module('app', [
+        "xeditable",
         'controllers',
         'services',
         'filters'
-    ]).run(function($rootScope) {
+    ]);
+
+    app.run(function ($rootScope, editableOptions, editableThemes) {
+        editableThemes.bs3.inputClass = 'input-sm';
+        editableThemes.bs3.buttonsClass = 'btn-sm';
+        editableOptions.theme = 'bs3';
+
         $rootScope.editMode = false;
     });
     app.value('$', $);
