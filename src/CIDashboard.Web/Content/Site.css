@@ -89,10 +89,15 @@
     right: 20px;
 }
 
-.addProjectBtn {
-    position: fixed;
-    top: 75px;
-    right: 10px;    
+.navbar-nav > li > button {
+  margin-top: 10px;
+  line-height: 21px;
+}
+
+@media (min-width: 768px) {
+  .navbar-nav > li > button {
+    margin-top: 19.5px;
+  }
 }
 
 
