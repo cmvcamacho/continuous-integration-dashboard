@@ -101,6 +101,23 @@
     right: 20px;
 }
 
+.panel-heading .topRight {
+    position: relative;
+    top: 0;
+    right: 0;
+}
+
+.buildSelector {
+    font-size: 85%;
+}
+
+.buildSelector div {
+    -moz-min-width: 90%;
+    -ms-min-width: 90%;
+    -o-min-width: 90%;
+    -webkit-min-width: 90%;
+    min-width: 90%;
+}
 
 /* loading */
 .spinner {

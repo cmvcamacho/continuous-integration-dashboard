@@ -8,7 +8,7 @@ namespace CIDashboard.Domain.Services
     {
         CiSource Source { get; }
 
-        Task<IEnumerable<CiProject>> GetAllProjectBuilds();
+        Task<IEnumerable<CiBuild>> GetAllProjectBuilds();
 
         Task<CiBuildResult> LastBuildResult(string buildId);
     }

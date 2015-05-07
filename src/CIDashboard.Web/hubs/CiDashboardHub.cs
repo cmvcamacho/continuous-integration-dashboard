@@ -61,5 +61,11 @@ namespace CIDashboard.Web.Hubs
             var connectionId = Context.ConnectionId;
             await _refreshInformation.RefreshBuilds(connectionId);
         }
+
+        public async Task RequestAllProjectBuilds()
+        {
+            var connectionId = Context.ConnectionId;
+            await _refreshInformation.RequestAllProjectBuilds(connectionId);
+        }
     }
 }

@@ -1,6 +1,14 @@
-﻿<div id="build_{{ build.BuildId }}" class="panel small {{ build.Status | buildStatusCss }}">
+﻿<div id="build_{{ build.CiExternalId }}" class="panel small {{ build.Status | buildStatusCss }}">
     <button type="button" class="close topRight" data-dismiss="alert" ng-show="editMode" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-    <p class="text-center header">{{ build.Name }}</p>
+    <p class="text-center header" ng-hide="editMode">{{ build.Name }}</p>
+    <span class="buildSelector" ng-show="editMode">
+        <ui-select ng-model="selectedBuild.selected" ng-disabled="disabled" title="Choose a build">
+            <ui-select-match placeholder="Select a build in the list...">{{$select.selected.Name}}</ui-select-match>
+            <ui-select-choices group-by="'ProjectName'" repeat="item in selectableBuilds | propsFilter: {Name: $select.search, ProjectName: $select.search}">
+                <div ng-bind-html="item.Name | highlight: $select.search"></div>
+            </ui-select-choices>
+        </ui-select>
+    </span>
     <p class="details">Build:&nbsp;<span>{{ build.Version }}</span></p>
     <p class="pull-right build-link">
         <a class="btn btn-link btn-xs" title="Open" href="{{ build.Url }}" target="_blank">

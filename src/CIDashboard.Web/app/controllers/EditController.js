@@ -7,6 +7,8 @@
                 $editService.initialize();
 
                 $scope.refreshing = false;
+                $scope.projects = [];
+                $scope.selectableBuilds = [];
 
                 $scope.toggleEditMode = function() {
                     $rootScope.editMode = !$rootScope.editMode;
@@ -14,6 +16,44 @@
 
                 $scope.startRefresh = function () {
                     startRefresh();
+                }
+
+                var findProjectAndBuildByBuildId = function (buildId) {
+                    for (var i = 0; i < $scope.projects.length; i++) {
+                        for (var j = 0; j < $scope.projects[i].Builds.length; j++) {
+                            if ($scope.projects[i].Builds[j].CiExternalId === buildId) {
+                                return { "projectIndex": i, "buildIndex": j };
+                            }
+                        }
+                    }
+                    return null;
+                }
+
+                var findProjectProjectId = function (projectId) {
+                    for (var i = 0; i < $scope.projects.length; i++) {
+                        if ($scope.projects[i].Id === projectId) {
+                            return { "projectIndex": i };
+                        }
+                    }
+                    return null;
+                }
+
+                $scope.findProjectAndBuildByBuildId = findProjectAndBuildByBuildId;
+
+                $scope.findProjectProjectId = findProjectProjectId;
+
+                $scope.addBuild = function (projectId) {
+                    var idx = findProjectProjectId(projectId);
+                    if (!idx) {
+                        toastr.error('Project not found: ' + projectId);
+                    }
+                    else {
+                        $scope.projects[idx.projectIndex].Builds.push({ "Name": "Select a build" });
+                    }
+                }
+
+                $scope.addProject = function () {
+                    $scope.projects.push({ "Name": "Enter project name", "Builds": [] });
                 }
 
                 var startRefresh = function() {
@@ -26,15 +66,26 @@
                     });
                 }
 
-                $scope.$parent.$on("startRefresh", function (e, status) {
+                $scope.$on("startRefresh", function (e, status) {
                     $scope.$apply(function () {
                         $scope.refreshing = true;
                     });
                 });
 
-                $scope.$parent.$on("stopRefresh", function (e, status) {
+                $scope.$on("stopRefresh", function (e, status) {
                     setTimeout(stopRefresh, 500);
                 });
+
+                $scope.$on("sendProjectBuilds", function (e, projectBuilds) {
+                    $scope.$apply(function () {
+                        $scope.selectableBuilds.splice(0, $scope.selectableBuilds.length);
+
+                        for (var i = 0; i < projectBuilds.length; i++)
+                            $scope.selectableBuilds.push(projectBuilds[i]);
+
+                        toastr.info('project build list updated...');
+                    });
+                }); 
             }
         ]);
 })();

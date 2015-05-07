@@ -49,7 +49,8 @@ namespace CIDashboard.Domain.Tests.MappingProfiles
                             CiSource = CiSource.TeamCity,
                             Id = b.Id,
                             Name = b.Name,
-                            Url = b.WebUrl
+                            Url = b.WebUrl,
+                            ProjectName = b.ProjectName
                         })
                 });
 

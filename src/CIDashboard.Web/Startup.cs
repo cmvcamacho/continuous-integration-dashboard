@@ -87,8 +87,9 @@ namespace CIDashboard.Web
                     new SqlServerStorageOptions { QueuePollInterval = TimeSpan.FromSeconds(5) });
                 configHangfire.UseServer();
             });
-            
-            RecurringJob.AddOrUpdate("RefreshBuilds", () => container.Resolve<IRefreshInformation>().RefreshBuildsSync(), Cron.Minutely);
+
+            //every 5 minutes
+            RecurringJob.AddOrUpdate("RefreshBuilds", () => container.Resolve<IRefreshInformation>().RefreshBuildsSync(), "*/5 * * * *");
         }
 
         private void ConfigureLog()

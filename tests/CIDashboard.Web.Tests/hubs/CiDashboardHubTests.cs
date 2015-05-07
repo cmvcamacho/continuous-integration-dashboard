@@ -94,5 +94,18 @@ namespace CIDashboard.Web.Tests.Hubs
                 .MustHaveHappened();
         }
 
+        [Test]
+        public async Task RequestRefreshCallsRequestAllProjectBuildsForConnectionIdOnly()
+        {
+            var connectionId = _fixture.Create<string>();
+            A.CallTo(() => _context.ConnectionId).Returns(connectionId);
+
+            var hub = new CiDashboardHub(_refreshInformation) { Context = _context };
+
+            await hub.RequestAllProjectBuilds();
+
+            A.CallTo(() => _refreshInformation.RequestAllProjectBuilds(connectionId))
+                .MustHaveHappened();
+        }
     }
 }

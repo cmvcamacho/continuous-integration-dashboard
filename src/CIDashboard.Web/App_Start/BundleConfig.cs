@@ -25,6 +25,7 @@ namespace CIDashboard.Web
 
             bundles.Add(new ScriptBundle("~/bundles/helpers")
                 .Include("~/Scripts/toastr.js")
+                .Include("~/Scripts/select.js")
                 .Include("~/Scripts/xeditable.js")
                 .Include("~/Scripts/jquery.jrumble.1.3.js"));
             
@@ -33,8 +34,9 @@ namespace CIDashboard.Web
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                         "~/Scripts/modernizr-*"));
 
-            bundles.Add(new ScriptBundle("~/bundles/angularjs").Include(
-                          "~/Scripts/angular.js"));
+            bundles.Add(new ScriptBundle("~/bundles/angularjs")
+                .Include("~/Scripts/angular.js")
+                .Include("~/Scripts/angular-sanitize.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include("~/Content/site.css"));
 
@@ -43,6 +45,8 @@ namespace CIDashboard.Web
 
             bundles.Add(new StyleBundle("~/Helpers/css")
                 .Include("~/Content/toastr.css")
+                .Include("~/Content/select.css")
+                .Include("~/Content/select2.css")
                 .Include("~/Content/xeditable.css"));
 
             bundles.Add(new ScriptBundle("~/bundles/application").Include(

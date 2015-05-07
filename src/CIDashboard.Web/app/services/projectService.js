@@ -7,15 +7,15 @@
             signalrService.initialize();
 
             signalrService.getProxy().on('sendMessage', function (message) {
-                $rootScope.$emit('sendMessage', message);
+                $rootScope.$broadcast('sendMessage', message);
             });
 
             signalrService.getProxy().on('sendProjects', function (projectList) {
-                $rootScope.$emit('sendProjects', projectList);
+                $rootScope.$broadcast('sendProjects', projectList);
             });
 
             signalrService.getProxy().on('sendBuildResult', function (buildResult) {
-                $rootScope.$emit('sendBuildResult', buildResult);
+                $rootScope.$broadcast('sendBuildResult', buildResult);
             });
 
         };

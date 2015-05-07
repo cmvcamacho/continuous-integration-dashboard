@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CIDashboard.Data.Entities;
 using CIDashboard.Data.Interfaces;
+using CIDashboard.Domain.Entities;
 using CIDashboard.Domain.Services;
 using CIDashboard.Web.Infrastructure;
 using CIDashboard.Web.MappingProfiles;
@@ -293,6 +294,20 @@ namespace CIDashboard.Web.Tests.Infrastructure
                 A.CallTo(() => _ciServerService.LastBuildResult(buildsId))
                     .MustNotHaveHappened();
             }
+        }
+
+        [Test]
+        public async Task RequestAllProjectBuildsWithConnectionIdCallGetAllProjectBuilds()
+        {
+            var connectionId = _fixture.Create<string>();
+
+            var refresh = new RefreshInformation();
+            refresh.CiServerService = _ciServerService;
+            await refresh.RequestAllProjectBuilds(connectionId);
+
+            A.CallTo(() => _ciServerService
+                .GetAllProjectBuilds())
+                .MustHaveHappened();
         }
     }
 }

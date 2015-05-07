@@ -113,18 +113,36 @@ namespace CIDashboard.Web.Infrastructure
             RefreshBuilds(null).Wait();
         }
 
+        public async Task RequestAllProjectBuilds(string connectionId)
+        {
+            try
+            {
+                var allProjectBuilds = await this.CiServerService.GetAllProjectBuilds();
+                var mappedProjectBuilds = Mapper.Map<IEnumerable<CiBuild>, IEnumerable<Models.ProjectBuild>>(allProjectBuilds);
+
+                var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
+                hubContext.Clients.Client(connectionId)
+                    .sendProjectBuilds(mappedProjectBuilds);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Error requesting all project builds...");
+            }
+        }
+      
+
         private async Task GetLastBuildResult(IHubContext hubContext, string buildId)
         {
             var lastBuildResult = await this.CiServerService.LastBuildResult(buildId);
             var mappedBuildResult = Mapper.Map<CiBuildResult, Models.Build>(lastBuildResult);
 
-            var connIds = BuildsPerConnId.Where(b => b.Value.Contains(mappedBuildResult.BuildId)).Select(d => d.Key);
+            var connIds = BuildsPerConnId.Where(b => b.Value.Contains(mappedBuildResult.CiExternalId)).Select(d => d.Key);
 
             foreach (var connectionId in connIds)
             {
                 Logger.Debug(
                     "Sending build result for {buildId} to {connectionId}",
-                    mappedBuildResult.BuildId,
+                    mappedBuildResult.CiExternalId,
                     connectionId);
                 hubContext.Clients.Client(connectionId).sendBuildResult(mappedBuildResult);
             }

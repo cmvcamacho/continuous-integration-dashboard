@@ -7,7 +7,15 @@
             $projectsService.initialize();
 
             $scope.loading = true;
-            $scope.projects = [];
+            //$scope.$parent is EditController
+            $scope.projects = $scope.$parent.projects;
+
+            $scope.selectedBuild = {};
+            $scope.selectableBuilds = $scope.$parent.selectableBuilds;
+
+            var findProjectAndBuildByBuildId = $scope.$parent.findProjectAndBuildByBuildId;
+
+            var findProjectProjectId = $scope.$parent.findProjectProjectId;
 
             var showMessage = function (message) {
                 if (message.Status === "Info")
@@ -26,36 +34,44 @@
             }
 
             var showBuildResult = function (buildResult) {
-                for (var i = 0; i < $scope.projects.length; i++) {
-                    for (var j = 0; j < $scope.projects[i].Builds.length; j++) {
-                        if ($scope.projects[i].Builds[j].BuildId === buildResult.BuildId) {
-                            $scope.projects[i].Builds[j] = buildResult;
-                            toastr.success(buildResult.Name + " updated!");
-                            //$('#build_' + buildResult.BuildId).jrumble({ speed: 0 });
-                            //$('#build_' + buildResult.BuildId).trigger('startRumble');
-                            return;
-                        }
-                    }
+                var idx = findProjectAndBuildByBuildId(buildResult.CiExternalId);
+                if (!idx) {
+                    toastr.error('Build not found: ' + buildResult.Name);
+                }
+                else {
+                    $scope.projects[idx.projectIndex].Builds[idx.buildIndex] = buildResult;
+                    toastr.success(buildResult.Name + " updated!");
+                    //$('#build_' + buildResult.CiExternalId).jrumble({ speed: 0 });
+                    //$('#build_' + buildResult.CiExternalId).trigger('startRumble');
                 }
             }
 
-            $scope.$parent.$on("sendMessage", function (e, message) {
+            $scope.$on("sendMessage", function (e, message) {
                 $scope.$apply(function () {
                     showMessage(message);
                 });
             });
 
-            $scope.$parent.$on("sendProjects", function (e, projectList) {
+            $scope.$on("sendProjects", function (e, projectList) {
                 $scope.$apply(function () {
                     showProjects(projectList);
                 });
             });
 
-            $scope.$parent.$on("sendBuildResult", function (e, buildResult) {
+            $scope.$on("sendBuildResult", function (e, buildResult) {
                 $scope.$apply(function () {
                     showBuildResult(buildResult);
                 });
-            }); 
+            });
+
+            $scope.addProject = function () {
+                $scope.$parent.addProject();
+            }
+
+            $scope.addBuild = function (projectId) {
+                $scope.$parent.addBuild(projectId);
+            }
+
     }]);
   
     app.directive('project', function () {

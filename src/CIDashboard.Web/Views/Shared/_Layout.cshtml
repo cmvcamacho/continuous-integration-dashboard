@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
  
-    <title>Teamcity dashboard</title>
+    <title>Continuous Integration Dashboard</title>
     @Styles.Render("~/Bootstrap/css")
     @Styles.Render("~/Helpers/css")
     @Styles.Render("~/Content/css")
@@ -20,7 +20,7 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 </head>
-<body ng-app="app">
+<body ng-app="app" ng-controller="EditController">
     @Html.Partial("Header")
 
     @RenderBody()

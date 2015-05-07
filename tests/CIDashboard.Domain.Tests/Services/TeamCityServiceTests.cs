@@ -52,31 +52,24 @@ namespace CIDashboard.Domain.Tests.Services
         [Test]
         public async Task GetAllProjectBuildsReturnsProjectAndBuildTypesCorrectlyMapped()
         {
-            var projects = _fixture
-                .Build<Project>()
+            var buildConfigs = _fixture
+                .Build<BuildConfig>()
                 .CreateMany();
 
-            A.CallTo(() => _teamcityClient.Projects.All())
-                .Returns(projects.ToList());
+            A.CallTo(() => _teamcityClient.BuildConfigs.All())
+                .Returns(buildConfigs.ToList());
 
             var teamCityService = new TeamCityService(_teamcityClient);
             var result = await teamCityService.GetAllProjectBuilds();
 
-            var expectedResult = projects.Select(
-                p => new CiProject
+            var expectedResult = buildConfigs.Select(
+                b => new CiBuild()
                 {
                     CiSource = CiSource.TeamCity,
-                    Id = p.Id,
-                    Name = p.Name,
-                    Url = p.WebUrl,
-                    Builds = p.BuildTypes.BuildType.Select(
-                        b => new CiBuild
-                        {
-                            CiSource = CiSource.TeamCity,
-                            Id = b.Id,
-                            Name = b.Name,
-                            Url = b.WebUrl
-                        })
+                    Id = b.Id,
+                    Name = b.Name,
+                    Url = b.WebUrl,
+                    ProjectName = b.ProjectName
                 });
 
             result.ShouldBeEquivalentTo(expectedResult);     

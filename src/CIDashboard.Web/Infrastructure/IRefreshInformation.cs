@@ -10,6 +10,8 @@ namespace CIDashboard.Web.Infrastructure
 
         Task RefreshBuilds(string connectionId);
 
+        Task RequestAllProjectBuilds(string connectionId);
+
         void RefreshBuildsSync();
     }
 }

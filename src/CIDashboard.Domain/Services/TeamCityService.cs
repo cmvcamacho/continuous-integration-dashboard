@@ -39,13 +39,14 @@ namespace CIDashboard.Domain.Services
             }
         }
 
-        public async Task<IEnumerable<CiProject>> GetAllProjectBuilds()
+        public async Task<IEnumerable<CiBuild>> GetAllProjectBuilds()
         {
-            Logger.Debug("Retrieving from TeamCity all Projects");
-            var projects = await Task.Run(() => this._client.Projects.All());
-            var mappedProjects = Mapper.Map<IEnumerable<Project>, IEnumerable<CiProject>>(projects);
+            Logger.Debug("Retrieving from TeamCity all BuildConfigs");
+            var buildConfigs = await Task.Run(() => this._client.BuildConfigs.All());
 
-            return mappedProjects;
+            var mappedBuilds = Mapper.Map<IEnumerable<BuildConfig>, IEnumerable<CiBuild>>(buildConfigs);
+
+            return mappedBuilds;
         }
 
         public async Task<CiBuildResult> LastBuildResult(string buildId)

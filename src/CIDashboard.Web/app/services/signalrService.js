@@ -3,6 +3,7 @@
     angular.module('services').factory('$signalrService', function ($) {
         var proxy;
         var connection;
+        var connected = false;
 
         var initialize = function () {
             if (!connection) {
@@ -24,6 +25,7 @@
             connection
                 .start()
                 .done(function () {
+                    connected = true;
                     console.log('Now connected, connection ID=' + connection.id);
                     toastr.success('Connection established');
                 })
@@ -37,9 +39,14 @@
             return proxy;
         }
 
+        var isConnected = function () {
+            return connected;
+        }
+
         return {
             initialize: initialize,
-            getProxy: getProxy
+            getProxy: getProxy,
+            isConnected: isConnected
         };
     });
 }());
