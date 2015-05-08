@@ -42,10 +42,51 @@
             });
         };
 
+        //add, update projects
+        var addNewProject = function (project) {
+            signalrService.getProxy()
+                .invoke('AddNewProject', project)
+                .fail(function (error) {
+                    console.log('AddNewProject error: ' + error);
+                });
+        };
+
+        var updateProjectName = function (projectId, projectName) {
+            signalrService.getProxy()
+                .invoke('updateProjectName', projectId, projectName)
+                .fail(function (error) {
+                    console.log('updateProjectName error: ' + error);
+                });
+        };
+
+        var removeProject = function (projectId) {
+            signalrService.getProxy()
+                .invoke('removeProject', projectId)
+                .fail(function (error) {
+                    console.log('removeProject error: ' + error);
+                });
+        }
+
+
+        //add, update build results
+        var addBuildToProject = function (projectId, build) {
+            signalrService.getProxy()
+                .invoke('addBuildToProject', projectId, build)
+                .fail(function (error) {
+                    console.log('addBuildToProject error: ' + error);
+                });
+        };
+        
+
+
         return {
             initialize: initialize,
             requestRefresh: requestRefresh,
-            requesProjectBuilds: requesProjectBuilds
+            requesProjectBuilds: requesProjectBuilds,
+            addNewProject: addNewProject,
+            updateProjectName: updateProjectName,
+            removeProject: removeProject,
+            addBuildToProject: addBuildToProject
         };
     }]);
 }());

@@ -4,6 +4,8 @@
     /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
 }
 
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
 .navbar-nav > li > button {
   margin-top: 10px;
   line-height: 21px;
@@ -107,16 +109,25 @@
     right: 0;
 }
 
-.buildSelector {
-    font-size: 85%;
+.buildSelector ul {
+    font-size: 80%;
 }
 
-.buildSelector div {
+.buildSelector input {
     -moz-min-width: 90%;
     -ms-min-width: 90%;
     -o-min-width: 90%;
     -webkit-min-width: 90%;
     min-width: 90%;
+    width: 90%;
+    padding: 0;
+    height: 21px;
+    margin: 2px 0 0 2px;
+    font-size: 12px;
+}
+
+.buildSelector .typeahead-group-header {
+    color: black;
 }
 
 /* loading */

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using CIDashboard.Web.Hubs;
 using CIDashboard.Web.Infrastructure;
+using CIDashboard.Web.Models;
 using FakeItEasy;
 using Microsoft.AspNet.SignalR.Hubs;
 using NUnit.Framework;
@@ -15,7 +16,8 @@ namespace CIDashboard.Web.Tests.Hubs
     {
         private IPrincipal _principal;
         private HubCallerContext _context;
-        private IRefreshInformation _refreshInformation;
+        private IQueryController queryController;
+        private ICommandController commandController;
         private IFixture _fixture;
 
         [SetUp]
@@ -24,7 +26,8 @@ namespace CIDashboard.Web.Tests.Hubs
             _fixture = new Fixture()
                 .Customize(new AutoFakeItEasyCustomization());
 
-            _refreshInformation = A.Fake<IRefreshInformation>();
+            this.queryController = A.Fake<IQueryController>();
+            this.commandController = A.Fake<ICommandController>();
             _principal = A.Fake<IPrincipal>();
             _context = A.Fake<HubCallerContext>();
         }
@@ -38,11 +41,11 @@ namespace CIDashboard.Web.Tests.Hubs
             A.CallTo(() => _context.ConnectionId).Returns(connectionId);
             A.CallTo(() => _context.User).Returns(_principal);
 
-            var hub = new CiDashboardHub(_refreshInformation) { Context = _context };
+            var hub = new CiDashboardHub(this.queryController, this.commandController) { Context = _context };
 
             await hub.OnConnected();
 
-            A.CallTo(() => _refreshInformation.AddBuilds(username, connectionId))
+            A.CallTo(() => this.queryController.AddBuilds(username, connectionId))
                 .MustHaveHappened();
         }
 
@@ -55,11 +58,11 @@ namespace CIDashboard.Web.Tests.Hubs
             A.CallTo(() => _context.ConnectionId).Returns(connectionId);
             A.CallTo(() => _context.User).Returns(_principal);
 
-            var hub = new CiDashboardHub(_refreshInformation) { Context = _context };
+            var hub = new CiDashboardHub(this.queryController, this.commandController) { Context = _context };
 
             await hub.OnReconnected();
 
-            A.CallTo(() => _refreshInformation.AddBuilds(username, connectionId))
+            A.CallTo(() => this.queryController.AddBuilds(username, connectionId))
                 .MustHaveHappened();
         }
 
@@ -72,11 +75,11 @@ namespace CIDashboard.Web.Tests.Hubs
             A.CallTo(() => _context.ConnectionId).Returns(connectionId);
             A.CallTo(() => _context.User).Returns(_principal);
 
-            var hub = new CiDashboardHub(_refreshInformation) { Context = _context };
+            var hub = new CiDashboardHub(this.queryController, this.commandController) { Context = _context };
 
             await hub.OnDisconnected(true);
 
-            A.CallTo(() => _refreshInformation.RemoveBuilds(connectionId))
+            A.CallTo(() => this.queryController.RemoveBuilds(connectionId))
                 .MustHaveHappened();
         }
 
@@ -86,11 +89,11 @@ namespace CIDashboard.Web.Tests.Hubs
             var connectionId = _fixture.Create<string>();
             A.CallTo(() => _context.ConnectionId).Returns(connectionId);
 
-            var hub = new CiDashboardHub(_refreshInformation) { Context = _context };
+            var hub = new CiDashboardHub(this.queryController, this.commandController) { Context = _context };
 
             await hub.RequestRefresh();
 
-            A.CallTo(() => _refreshInformation.RefreshBuilds(connectionId))
+            A.CallTo(() => this.queryController.RefreshBuilds(connectionId))
                 .MustHaveHappened();
         }
 
@@ -100,12 +103,92 @@ namespace CIDashboard.Web.Tests.Hubs
             var connectionId = _fixture.Create<string>();
             A.CallTo(() => _context.ConnectionId).Returns(connectionId);
 
-            var hub = new CiDashboardHub(_refreshInformation) { Context = _context };
+            var hub = new CiDashboardHub(this.queryController, this.commandController) { Context = _context };
 
             await hub.RequestAllProjectBuilds();
 
-            A.CallTo(() => _refreshInformation.RequestAllProjectBuilds(connectionId))
+            A.CallTo(() => this.queryController.RequestAllProjectBuilds(connectionId))
                 .MustHaveHappened();
+        }
+
+        [Test]
+        public async Task AddNewProjectCallsCommandControllerAddNewProjectAndUpdatesUI()
+        {
+            var username = _fixture.Create<string>();
+            var connectionId = _fixture.Create<string>();
+            A.CallTo(() => _principal.Identity.Name).Returns(username);
+            A.CallTo(() => _context.ConnectionId).Returns(connectionId);
+            A.CallTo(() => _context.User).Returns(_principal);
+
+            var project = _fixture.Create<Project>();
+            var resultProject = _fixture.Create<Project>();
+
+            A.CallTo(() => this.commandController.AddNewProject(username, project))
+                .Returns(resultProject);
+
+            var hub = new CiDashboardHub(this.queryController, this.commandController) { Context = _context };
+            await hub.AddNewProject(project);
+
+            A.CallTo(() => this.commandController.AddNewProject(username, project))
+                .MustHaveHappened();
+
+            A.CallTo(() => this.queryController.UpdateProject(connectionId, project.Id, resultProject))
+                .MustHaveHappened();
+        }
+
+        [Test]
+        public async Task UpdateProjectNameCallsCommandControllerUpdateProjectNameAndUpdatesUI()
+        {
+            var username = _fixture.Create<string>();
+            var connectionId = _fixture.Create<string>();
+            A.CallTo(() => _principal.Identity.Name).Returns(username);
+            A.CallTo(() => _context.ConnectionId).Returns(connectionId);
+            A.CallTo(() => _context.User).Returns(_principal);
+
+            var project = _fixture.Create<Project>();
+
+            A.CallTo(() => this.commandController.UpdateProjectName(project.Id, project.Name))
+                .Returns(true);
+
+            var hub = new CiDashboardHub(this.queryController, this.commandController) { Context = _context };
+            await hub.UpdateProjectName(project.Id, project.Name);
+
+            A.CallTo(() => this.commandController.UpdateProjectName(project.Id, project.Name))
+                .MustHaveHappened();
+
+            A.CallTo(() => this.queryController.SendMessage(connectionId, string.Format("Project {0} updated.", project.Name)))
+                .MustHaveHappened();
+        }
+
+
+        [Test]
+        public async Task RemoveProjectCallsCommandControllerRemoveProjectAndUpdatesUI()
+        {
+            var username = _fixture.Create<string>();
+            var connectionId = _fixture.Create<string>();
+            A.CallTo(() => _principal.Identity.Name).Returns(username);
+            A.CallTo(() => _context.ConnectionId).Returns(connectionId);
+            A.CallTo(() => _context.User).Returns(_principal);
+
+            var project = _fixture.Create<Project>();
+
+            A.CallTo(() => this.commandController.RemoveProject(project.Id))
+                .Returns(true);
+
+            var hub = new CiDashboardHub(this.queryController, this.commandController) { Context = _context };
+            await hub.RemoveProject(project.Id);
+
+            A.CallTo(() => this.commandController.RemoveProject(project.Id))
+                .MustHaveHappened();
+
+            A.CallTo(() => this.queryController.SendMessage(connectionId, "Project removed."))
+                .MustHaveHappened();
+        }
+
+        [Test]
+        public async Task AddBuildToProjectCallsCommandControllerAddBuildToProjectAndUpdatesUI()
+        {
+            Assert.Fail("not implemented yet");
         }
     }
 }

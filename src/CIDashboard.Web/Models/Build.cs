@@ -4,7 +4,7 @@ namespace CIDashboard.Web.Models
 {
     public class Build
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         public string CiExternalId { get; set; }
 

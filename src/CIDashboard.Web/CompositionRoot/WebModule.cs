@@ -9,8 +9,15 @@ namespace CIDashboard.Web.CompositionRoot
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<RefreshInformation>()
-                .As<IRefreshInformation>()
+                .RegisterType<QueryController>()
+                .As<IQueryController>()
+                .ExternallyOwned()
+                .PropertiesAutowired()
+                .InstancePerLifetimeScope();
+
+            builder
+                .RegisterType<CommandController>()
+                .As<ICommandController>()
                 .ExternallyOwned()
                 .PropertiesAutowired()
                 .InstancePerLifetimeScope();

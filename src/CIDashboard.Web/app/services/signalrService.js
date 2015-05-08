@@ -16,7 +16,7 @@
 
                 connection.disconnected(function () {
                     toastr.error("not able to connect to server...");
-                    setTimeout(startConnection, 500); // Restart connection after half a second.
+                    setTimeout(startConnection, 5000); // Restart connection after half a second.
                 });
             }
         };

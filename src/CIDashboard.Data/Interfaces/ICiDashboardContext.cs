@@ -8,5 +8,7 @@ namespace CIDashboard.Data.Interfaces
     {
         DbSet<Build> Builds { get; set; }
         DbSet<Project> Projects { get; set; }
+
+        int SaveChanges();
     }
 }

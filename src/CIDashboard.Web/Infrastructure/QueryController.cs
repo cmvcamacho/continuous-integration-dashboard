@@ -13,25 +13,35 @@ using CIDashboard.Domain.Services;
 using CIDashboard.Web.Hubs;
 using Microsoft.AspNet.SignalR;
 using Serilog;
+using Build = CIDashboard.Web.Models.Build;
 
 namespace CIDashboard.Web.Infrastructure
 {
-    public class RefreshInformation : IRefreshInformation
+    public class QueryController : IQueryController
     {
         internal static ConcurrentDictionary<string, List<string>> BuildsPerConnId = new ConcurrentDictionary<string, List<string>>();
         internal static ConcurrentDictionary<string, string> BuildsToBeRefreshed = new ConcurrentDictionary<string, string>();
 
-        private static readonly ILogger Logger = Log.ForContext<RefreshInformation>();
+        private static readonly ILogger Logger = Log.ForContext<QueryController>();
 
         public ICiDashboardService CiDashboardService { get; set; }
         
         public ICiServerService CiServerService { get; set; }
 
+        public async Task SendMessage(string connectionId, string message)
+        {
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
+            await Task.Run(() => hubContext.Clients.Client(connectionId).sendMessage(new { Status = "Info", Message = message }));
+        }
+
         public async Task AddBuilds(string username, string connectionId)
         {
             var userProjects = await this.CiDashboardService.GetProjects(username);
             var buildIds = userProjects
-                .SelectMany(p => p.Builds.Select(b => b.CiExternalId).ToList())
+                .SelectMany(p => p.Builds
+                    .Where(b => !string.IsNullOrEmpty(b.CiExternalId))
+                    .Select(b => b.CiExternalId)
+                    .ToList())
                 .ToList();
 
             BuildsPerConnId.AddOrUpdate(connectionId, buildIds, (oldkey, oldvalue) => buildIds);
@@ -81,14 +91,14 @@ namespace CIDashboard.Web.Infrastructure
 
                 var connectionIdToRefresh = string.IsNullOrEmpty(connectionId)
                     ? BuildsPerConnId.Keys
-                    : new List<string> {connectionId};
+                    : new List<string> { connectionId };
                 Parallel.ForEach(connectionIdToRefresh,
                     connId =>
                     {
                         Logger.Debug("Refreshing build result for {connectionId}", connId);
                         hubContext.Clients.Client(connId)
-                            .sendMessage(new {Status = "Info", Message = "Your builds are being refreshed"});
-                        hubContext.Clients.Client(connId).startRefresh(new {Status = "start"});
+                            .sendMessage(new { Status = "Info", Message = "Your builds are being refreshed" });
+                        hubContext.Clients.Client(connId).startRefresh(new { Status = "start" });
                     });
 
                 var buildsToRefresh = string.IsNullOrEmpty(connectionId)
@@ -113,6 +123,42 @@ namespace CIDashboard.Web.Infrastructure
             RefreshBuilds(null).Wait();
         }
 
+        public async Task UpdateProject(string connectionId, int oldId, Models.Project project)
+        {
+            try
+            {
+                var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
+                hubContext.Clients.Client(connectionId)
+                    .sendProjectUpdate(new { OldId = oldId, Project = project });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Error updating project...");
+            }     
+        }
+
+        public async Task UpdateBuild(string connectionId, int oldId, Build build)
+        {
+            try
+            {
+                if (!BuildsToBeRefreshed.ContainsKey(build.CiExternalId))
+                    BuildsToBeRefreshed.TryAdd(build.CiExternalId, build.CiExternalId);
+                if(!BuildsPerConnId.ContainsKey(connectionId))
+                {
+                    if(!BuildsPerConnId[connectionId].Contains(build.CiExternalId))
+                        BuildsPerConnId[connectionId].Add(build.CiExternalId);
+                }
+
+                var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
+                hubContext.Clients.Client(connectionId)
+                    .sendBuildUpdate(new { OldId = oldId, Build = build });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Error updating build...");
+            }
+        }
+
         public async Task RequestAllProjectBuilds(string connectionId)
         {
             try
@@ -129,24 +175,31 @@ namespace CIDashboard.Web.Infrastructure
                 Logger.Error(ex, "Error requesting all project builds...");
             }
         }
-      
 
         private async Task GetLastBuildResult(IHubContext hubContext, string buildId)
         {
-            var lastBuildResult = await this.CiServerService.LastBuildResult(buildId);
-            var mappedBuildResult = Mapper.Map<CiBuildResult, Models.Build>(lastBuildResult);
-
-            var connIds = BuildsPerConnId.Where(b => b.Value.Contains(mappedBuildResult.CiExternalId)).Select(d => d.Key);
-
-            foreach (var connectionId in connIds)
+            try
             {
-                Logger.Debug(
-                    "Sending build result for {buildId} to {connectionId}",
-                    mappedBuildResult.CiExternalId,
-                    connectionId);
-                hubContext.Clients.Client(connectionId).sendBuildResult(mappedBuildResult);
+                var lastBuildResult = await this.CiServerService.LastBuildResult(buildId);
+                var mappedBuildResult = Mapper.Map<CiBuildResult, Models.Build>(lastBuildResult);
+
+                var connIds = BuildsPerConnId.Where(b => b.Value.Contains(mappedBuildResult.CiExternalId))
+                    .Select(d => d.Key);
+
+                foreach(var connectionId in connIds)
+                {
+                    Logger.Debug(
+                        "Sending build result for {buildId} to {connectionId}",
+                        mappedBuildResult.CiExternalId,
+                        connectionId);
+                    hubContext.Clients.Client(connectionId)
+                        .sendBuildResult(mappedBuildResult);
+                }
+            }
+            catch(Exception ex)
+            {
+                Logger.Error(ex, "Error getting last build result for {buildId}...", buildId);
             }
         }
-
     }
 }

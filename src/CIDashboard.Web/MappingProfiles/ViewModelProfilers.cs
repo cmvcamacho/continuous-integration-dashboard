@@ -8,8 +8,10 @@ namespace CIDashboard.Web.MappingProfiles
         protected override void Configure()
         {
             Mapper.CreateMap<Data.Entities.Project, Models.Project>();
+            Mapper.CreateMap<Models.Project, Data.Entities.Project>();
 
             Mapper.CreateMap<Data.Entities.Build, Models.Build>();
+            Mapper.CreateMap<Models.Build, Data.Entities.Build>();
 
             Mapper.CreateMap<CiSource, Models.CiSource>();
 

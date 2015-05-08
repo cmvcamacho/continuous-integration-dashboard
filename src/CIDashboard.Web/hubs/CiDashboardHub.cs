@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using CIDashboard.Web.Infrastructure;
+using CIDashboard.Web.Models;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using Serilog;
@@ -11,15 +12,13 @@ namespace CIDashboard.Web.Hubs
     public class CiDashboardHub : Hub
     {
         private static readonly ILogger Logger = Log.ForContext<CiDashboardHub>();
-        private readonly IRefreshInformation _refreshInformation;
+        private readonly IQueryController queryController;
+        private readonly ICommandController commandController;
 
-        public CiDashboardHub(IRefreshInformation refreshInformation)
+        public CiDashboardHub(IQueryController queryController, ICommandController commandController)
         {
-            // http://autofac.readthedocs.org/en/latest/integration/signalr.html
-            // Create a lifetime scope for the hub.
-            //_hubLifetimeScope = lifetimeScope.BeginLifetimeScope();
-
-            _refreshInformation = refreshInformation;
+            this.queryController = queryController;
+            this.commandController = commandController;
         }
 
         public override async Task OnConnected()
@@ -29,7 +28,7 @@ namespace CIDashboard.Web.Hubs
 
             Logger.Debug("OnConnected for {username} and {connectionId}", username, connectionId);
 
-            await _refreshInformation.AddBuilds(username, connectionId);
+            await this.queryController.AddBuilds(username, connectionId);
 
             await base.OnConnected();
         }
@@ -39,7 +38,7 @@ namespace CIDashboard.Web.Hubs
             var connectionId = Context.ConnectionId;
             Logger.Debug("OnDisconnected for {connectionId}", connectionId);
 
-            await _refreshInformation.RemoveBuilds(connectionId);
+            await this.queryController.RemoveBuilds(connectionId);
 
             await base.OnDisconnected(stopCalled);
         }
@@ -51,7 +50,7 @@ namespace CIDashboard.Web.Hubs
 
             Logger.Debug("OnReconnected for {username} and {connectionId}", username, connectionId);
 
-            await _refreshInformation.AddBuilds(username, connectionId);
+            await this.queryController.AddBuilds(username, connectionId);
 
             await base.OnReconnected();
         }
@@ -59,13 +58,48 @@ namespace CIDashboard.Web.Hubs
         public async Task RequestRefresh()
         {
             var connectionId = Context.ConnectionId;
-            await _refreshInformation.RefreshBuilds(connectionId);
+            await this.queryController.RefreshBuilds(connectionId);
         }
 
         public async Task RequestAllProjectBuilds()
         {
             var connectionId = Context.ConnectionId;
-            await _refreshInformation.RequestAllProjectBuilds(connectionId);
+            await this.queryController.RequestAllProjectBuilds(connectionId);
+        }
+
+        public async Task AddNewProject(Project project)
+        {
+            var username = Context.User.Identity.Name;
+            var connectionId = Context.ConnectionId;
+            var projectCreated = await this.commandController.AddNewProject(username, project);
+            if (projectCreated != null)
+                await this.queryController.UpdateProject(connectionId, project.Id, projectCreated);
+        }
+
+        public async Task UpdateProjectName(int projectId, string projectName)
+        {
+            var connectionId = Context.ConnectionId;
+            var updated = await this.commandController.UpdateProjectName(projectId, projectName);
+            if (updated)
+                await this.queryController.SendMessage(connectionId, string.Format("Project {0} updated.", projectName));
+        }
+
+        public async Task RemoveProject(int projectId)
+        {
+            var connectionId = Context.ConnectionId;
+            var removed = await this.commandController.RemoveProject(projectId);
+            if (removed)
+                await this.queryController.SendMessage(connectionId, "Project removed.");
+        }
+
+        public async Task AddBuildToProject(int projectId, Build build)
+        {
+            var connectionId = Context.ConnectionId;
+            var buildCreated = await this.commandController.AddBuildToProject(projectId, build);
+            if (buildCreated != null)
+            {
+                await this.queryController.UpdateBuild(connectionId, build.Id, buildCreated);
+            }
         }
     }
 }

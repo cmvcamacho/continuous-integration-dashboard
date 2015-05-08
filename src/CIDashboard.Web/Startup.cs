@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Autofac;
 using Autofac.Integration.SignalR;
 using AutoMapper;
@@ -89,7 +88,7 @@ namespace CIDashboard.Web
             });
 
             //every 5 minutes
-            RecurringJob.AddOrUpdate("RefreshBuilds", () => container.Resolve<IRefreshInformation>().RefreshBuildsSync(), "*/5 * * * *");
+            RecurringJob.AddOrUpdate("RefreshBuilds", () => container.Resolve<IQueryController>().RefreshBuildsSync(), "*/5 * * * *");
         }
 
         private void ConfigureLog()

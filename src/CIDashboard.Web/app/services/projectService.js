@@ -18,13 +18,15 @@
                 $rootScope.$broadcast('sendBuildResult', buildResult);
             });
 
+            signalrService.getProxy().on('sendProjectUpdate', function (projectInfo) {
+                $rootScope.$broadcast('sendProjectUpdate', projectInfo);
+            });
+
+            signalrService.getProxy().on('sendBuildUpdate', function (buildInfo) {
+                $rootScope.$broadcast('sendBuildUpdate', buildInfo);
+            }); 
+
         };
-
-        //var sendRequest = function () {
-        //    //Invoking greetAll method defined in hub
-        //    proxy.invoke('greetAll', 'ddd');
-        //};
-
 
         return {
             initialize: initialize,

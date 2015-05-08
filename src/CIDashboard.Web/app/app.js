@@ -2,7 +2,7 @@
     'use strict';
 
     var app = angular.module('app', [
-        'ngSanitize', 'xeditable', 'ui.select',
+        'ngSanitize', 'xeditable', 'ui.bootstrap',
         'controllers',
         'services',
         'filters'
@@ -14,11 +14,6 @@
         editableOptions.theme = 'bs3';
 
         $rootScope.editMode = false;
-    });
-    app.config(function (uiSelectConfig) {
-        uiSelectConfig.theme = 'select2';
-        uiSelectConfig.resetSearchInput = true;
-        uiSelectConfig.appendToBody = false;
     });
 
     app.value('$', $);

@@ -191,6 +191,8 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Infrastructure\CommandController.cs" />
+    <Compile Include="Infrastructure\ICommandController.cs" />
     <Compile Include="MappingProfiles\ViewModelProfilers.cs" />
     <Compile Include="CompositionRoot\WebModule.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -198,8 +200,8 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\CiDashboardHub.cs" />
-    <Compile Include="Infrastructure\IRefreshInformation.cs" />
-    <Compile Include="Infrastructure\RefreshInformation.cs" />
+    <Compile Include="Infrastructure\IQueryController.cs" />
+    <Compile Include="Infrastructure\QueryController.cs" />
     <Compile Include="Models\Build.cs" />
     <Compile Include="Models\CiSource.cs" />
     <Compile Include="Models\Project.cs" />
@@ -271,11 +273,14 @@
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\lodash.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Scripts\npm.js" />
     <Content Include="Scripts\select.js" />
     <Content Include="Scripts\toastr.js" />
     <Content Include="Scripts\toastr.min.js" />
+    <Content Include="Scripts\ui-bootstrap-0.13.0.js" />
+    <Content Include="Scripts\ui-bootstrap-tpls-0.13.0.js" />
     <Content Include="Scripts\xeditable.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
