@@ -228,12 +228,11 @@ namespace CIDashboard.Data.Tests
             A.CallTo(() => context.SaveChanges())
                 .MustHaveHappened();
 
+            A.CallTo(() => projectsSet.Remove(A<Project>.That.Matches(p => p.Id == project.Id)))
+                .MustHaveHappened();
+
             result.Should()
                 .BeTrue();
-
-            projectsSet.CountAsync().Result
-                .Should()
-                .Be(projects.Count() - 1);
         }
 
                 [Test]

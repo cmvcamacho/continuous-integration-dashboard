@@ -300,8 +300,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
         {
             var connectionId = _fixture.Create<string>();
 
-            var queryController = new QueryController();
-            queryController.CiServerService = _ciServerService;
+            var queryController = new QueryController {CiServerService = _ciServerService};
             await queryController.RequestAllProjectBuilds(connectionId);
 
             A.CallTo(() => _ciServerService
@@ -312,7 +311,28 @@ namespace CIDashboard.Web.Tests.Infrastructure
         [Test]
         public async Task UpdateBuildShouldUpdateBuildsToBeRefreshed()
         {
-            Assert.Fail("not implemented yet");
+            var buildsProj = _fixture
+                .Build<Build>()
+                .Without(p => p.Project)
+                .CreateMany();
+            var buildsIds = buildsProj.Select(b => b.CiExternalId)
+                .ToList();
+            var connectionId = _fixture.Create<string>();
+
+            var queryController = new QueryController();
+            queryController.CiServerService = _ciServerService;
+            QueryController.BuildsPerConnId.AddOrUpdate(connectionId, buildsIds, (oldkey, oldvalue) => buildsIds);
+            Parallel.ForEach(buildsIds,
+                build => QueryController.BuildsToBeRefreshed.TryAdd(build, build));
+
+            var newBuild = _fixture.Build<Models.Build>().Create();
+            await queryController.UpdateBuild(connectionId, -1, newBuild);
+
+            QueryController.BuildsPerConnId[connectionId]
+                .Should().Contain(newBuild.CiExternalId);
+
+            QueryController.BuildsToBeRefreshed
+                .Should().ContainKey(newBuild.CiExternalId);
         }
     }
 }

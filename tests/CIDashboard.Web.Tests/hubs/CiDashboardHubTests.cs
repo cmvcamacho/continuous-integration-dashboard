@@ -188,7 +188,24 @@ namespace CIDashboard.Web.Tests.Hubs
         [Test]
         public async Task AddBuildToProjectCallsCommandControllerAddBuildToProjectAndUpdatesUI()
         {
-            Assert.Fail("not implemented yet");
+            var connectionId = _fixture.Create<string>();
+            A.CallTo(() => _context.ConnectionId).Returns(connectionId);
+
+            var project = _fixture.Create<Project>();
+
+            var build = _fixture.Create<Build>();
+            var newBuild = _fixture.Create<Build>();
+            A.CallTo(() => this.commandController.AddBuildToProject(project.Id, build))
+                .Returns(newBuild);
+
+            var hub = new CiDashboardHub(this.queryController, this.commandController) { Context = _context };
+            await hub.AddBuildToProject(project.Id, build);
+
+            A.CallTo(() => this.commandController.AddBuildToProject(project.Id, build))
+                .MustHaveHappened();
+
+            A.CallTo(() => this.queryController.UpdateBuild(connectionId, build.Id, newBuild))
+                .MustHaveHappened();
         }
     }
 }

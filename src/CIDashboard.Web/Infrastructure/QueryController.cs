@@ -143,7 +143,7 @@ namespace CIDashboard.Web.Infrastructure
             {
                 if (!BuildsToBeRefreshed.ContainsKey(build.CiExternalId))
                     BuildsToBeRefreshed.TryAdd(build.CiExternalId, build.CiExternalId);
-                if(!BuildsPerConnId.ContainsKey(connectionId))
+                if(BuildsPerConnId.ContainsKey(connectionId))
                 {
                     if(!BuildsPerConnId[connectionId].Contains(build.CiExternalId))
                         BuildsPerConnId[connectionId].Add(build.CiExternalId);
