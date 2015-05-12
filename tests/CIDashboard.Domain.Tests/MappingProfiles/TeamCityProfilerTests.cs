@@ -43,8 +43,8 @@ namespace CIDashboard.Domain.Tests.MappingProfiles
                     Id = p.Id,
                     Name = p.Name,
                     Url = p.WebUrl,
-                    Builds = p.BuildTypes.BuildType.Select(
-                        b => new CiBuild
+                    BuildConfigs = p.BuildTypes.BuildType.Select(
+                        b => new CiBuildConfig
                         {
                             CiSource = CiSource.TeamCity,
                             Id = b.Id,

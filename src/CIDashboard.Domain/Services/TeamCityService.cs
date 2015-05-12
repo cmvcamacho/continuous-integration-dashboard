@@ -13,9 +13,9 @@ namespace CIDashboard.Domain.Services
 {
     public class TeamCityService : ICiServerService
     {
-        private readonly ITeamCityClient _client;
         private static readonly ILogger Logger = Log.ForContext<TeamCityService>();
 
+        private readonly ITeamCityClient _client;
 
         public TeamCityService(ITeamCityClient client)
         {
@@ -39,12 +39,12 @@ namespace CIDashboard.Domain.Services
             }
         }
 
-        public async Task<IEnumerable<CiBuild>> GetAllProjectBuilds()
+        public async Task<IEnumerable<CiBuildConfig>> GetAllBuildConfigs()
         {
             Logger.Debug("Retrieving from TeamCity all BuildConfigs");
             var buildConfigs = await Task.Run(() => this._client.BuildConfigs.All());
 
-            var mappedBuilds = Mapper.Map<IEnumerable<BuildConfig>, IEnumerable<CiBuild>>(buildConfigs);
+            var mappedBuilds = Mapper.Map<IEnumerable<BuildConfig>, IEnumerable<CiBuildConfig>>(buildConfigs);
 
             return mappedBuilds;
         }
@@ -89,9 +89,7 @@ namespace CIDashboard.Domain.Services
             if (await IsRunningABuild(buildId))
                 mappedBuild.Status = CiBuildResultStatus.Running;
 
-            // TODO: check if a build for it is queued
-
-
+            // TODO: check if a build for it is in queued
             return mappedBuild;
         }
 

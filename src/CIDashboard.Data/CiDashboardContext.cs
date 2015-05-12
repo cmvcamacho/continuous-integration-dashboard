@@ -17,7 +17,7 @@ namespace CIDashboard.Data
             Database.SetInitializer(new MigrateToLatestVersion());
         }
 
-        public DbSet<Build> Builds { get; set; }
+        public DbSet<BuildConfig> BuildConfigs { get; set; }
 
         public DbSet<Project> Projects { get; set; }
 
@@ -80,16 +80,16 @@ namespace CIDashboard.Data
                         Name = "OIS"
                     }
                 };
-                projects.First().Builds = new List<Build>
+                projects.First().BuildConfigs = new List<BuildConfig>
                 {
-                    new Build
+                    new BuildConfig
                     {
                         Id = 1,
                         CiExternalId = "bt24",
                         Name = "Mnp Jobs",
                         Project = projects.First()
                     },
-                    new Build
+                    new BuildConfig
                     {
                         Id = 2,
                         CiExternalId = "bt6",
@@ -97,16 +97,16 @@ namespace CIDashboard.Data
                         Project = projects.First()
                     }
                 };
-                projects.Last().Builds = new List<Build>
+                projects.Last().BuildConfigs = new List<BuildConfig>
                 {
-                    new Build
+                    new BuildConfig
                     {
                         Id = 3,
                         CiExternalId = "OIS_Trunk_OisService",
                         Name = "OIS Service",
                         Project = projects.Last()
                     },
-                    new Build
+                    new BuildConfig
                     {
                         Id = 4,
                         CiExternalId = "OIS_Trunk_AcceptanceTests_OisAcceptanceTestsDev6Nightly",

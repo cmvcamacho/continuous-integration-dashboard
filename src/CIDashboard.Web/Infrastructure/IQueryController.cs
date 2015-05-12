@@ -7,18 +7,18 @@ namespace CIDashboard.Web.Infrastructure
     {
         Task SendMessage(string connectionId, string message);
 
-        Task AddBuilds(string username, string connectionId);
+        Task SendUserProjectsAndBuildConfigs(string username, string connectionId);
 
-        Task RemoveBuilds(string connectionId);
+        Task RemoveUserBuildsConfigs(string connectionId);
 
-        Task RefreshBuilds(string connectionId);
+        Task SendRefreshBuildResults(string connectionId);
+
+        void SendRefreshBuildResultsSync();
 
         Task RequestAllProjectBuilds(string connectionId);
 
-        void RefreshBuildsSync();
+        Task SendUpdatedProject(string connectionId, int oldId, Project project);
 
-        Task UpdateProject(string connectionId, int oldId, Project project);
-
-        Task UpdateBuild(string connectionId, int oldId, Build build);
+        Task SendUpdatedBuild(string connectionId, int oldId, BuildConfig build);
     }
 }

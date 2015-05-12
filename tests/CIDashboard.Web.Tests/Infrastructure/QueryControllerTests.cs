@@ -38,7 +38,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
         }
 
         [Test]
-        public async Task AddBuildsQueriesForProjectsWhenUserIsNew()
+        public async Task SendUserBuildConfigsToUiQueriesForProjectsWhenUserIsNew()
         {
             var username = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
@@ -46,7 +46,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
             var queryController = new QueryController();
             queryController.CiDashboardService = _ciDashboardService;
 
-            await queryController.AddBuilds(username, connectionId);
+            await queryController.SendUserProjectsAndBuildConfigs(username, connectionId);
 
             A.CallTo(() => _ciDashboardService.GetProjects(username)).MustHaveHappened();
 
@@ -54,17 +54,17 @@ namespace CIDashboard.Web.Tests.Infrastructure
         }
 
         [Test]
-        public async Task AddBuildsAddsConnectionInfoStaticDictionaries()
+        public async Task SendUserBuildConfigsToUiAddsConnectionInfoStaticDictionaries()
         {
             var username = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
             var builds = _fixture
-                .Build<Build>()
+                .Build<BuildConfig>()
                 .Without(p => p.Project)
                 .CreateMany();
             var projects = _fixture
                 .Build<Project>()
-                .With(p => p.Builds, builds.ToList())
+                .With(p => p.BuildConfigs, builds.ToList())
                 .Create();
             var buildsIds = builds.Select(b => b.CiExternalId)
                 .ToList();
@@ -74,7 +74,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
             
             var queryController = new QueryController();
             queryController.CiDashboardService = _ciDashboardService;
-            await queryController.AddBuilds(username, connectionId);
+            await queryController.SendUserProjectsAndBuildConfigs(username, connectionId);
 
             QueryController.BuildsPerConnId.ContainsKey(connectionId).Should().BeTrue();
             QueryController.BuildsPerConnId[connectionId].ShouldAllBeEquivalentTo(buildsIds);
@@ -82,17 +82,17 @@ namespace CIDashboard.Web.Tests.Infrastructure
         }
 
         [Test]
-        public async Task AddBuildsDontDuplicateBuildsToBeRefreshed()
+        public async Task SendUserBuildConfigsToUiDontDuplicateBuildsToBeRefreshed()
         {
             var username = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
             var builds = _fixture
-                .Build<Build>()
+                .Build<BuildConfig>()
                 .Without(p => p.Project)
                 .CreateMany();
             var projects = _fixture
                 .Build<Project>()
-                .With(p => p.Builds, builds.ToList())
+                .With(p => p.BuildConfigs, builds.ToList())
                 .Create();
             var buildsIds = builds.Select(b => b.CiExternalId)
                 .ToList();
@@ -105,7 +105,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
             QueryController.BuildsToBeRefreshed.TryAdd(buildsIds.First(), buildsIds.First());
             QueryController.BuildsToBeRefreshed.TryAdd(_fixture.Create<string>(), _fixture.Create<string>());
 
-            await queryController.AddBuilds(username, connectionId);
+            await queryController.SendUserProjectsAndBuildConfigs(username, connectionId);
 
             QueryController.BuildsPerConnId.ContainsKey(connectionId).Should().BeTrue();
             QueryController.BuildsPerConnId[connectionId].ShouldAllBeEquivalentTo(buildsIds);
@@ -114,22 +114,22 @@ namespace CIDashboard.Web.Tests.Infrastructure
         }
 
         [Test]
-        public async Task AddBuildsRefreshsProjectsWhenUserAlreadyConnected()
+        public async Task SendUserBuildConfigsToUiRefreshsProjectsWhenUserAlreadyConnected()
         {
             var username = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
             var builds = _fixture
-                .Build<Build>()
+                .Build<BuildConfig>()
                 .Without(p => p.Project)
                 .CreateMany();
             var projects = _fixture
                 .Build<Project>()
-                .With(p => p.Builds, builds.ToList())
+                .With(p => p.BuildConfigs, builds.ToList())
                 .Create();
             var buildsIds = builds.Select(b => b.CiExternalId)
                 .ToList();
             var olderBuildsIds = _fixture
-                .Build<Build>()
+                .Build<BuildConfig>()
                 .Without(p => p.Project)
                 .CreateMany()
                 .Select(b => b.CiExternalId)
@@ -142,7 +142,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
             queryController.CiDashboardService = _ciDashboardService;
             QueryController.BuildsPerConnId.TryAdd(buildsIds.First(), olderBuildsIds);
 
-            await queryController.AddBuilds(username, connectionId);
+            await queryController.SendUserProjectsAndBuildConfigs(username, connectionId);
 
             QueryController.BuildsPerConnId.ContainsKey(connectionId).Should().BeTrue();
             QueryController.BuildsPerConnId[connectionId].ShouldAllBeEquivalentTo(buildsIds);
@@ -153,7 +153,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
         {
             var connectionId = _fixture.Create<string>();
             var buildsIds = _fixture
-                .Build<Build>()
+                .Build<BuildConfig>()
                 .Without(p => p.Project)
                 .CreateMany()
                 .Select(b => b.CiExternalId)
@@ -167,7 +167,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
                 QueryController.BuildsToBeRefreshed.TryAdd(buildsId, buildsId);
             }
             
-            await queryController.RemoveBuilds(connectionId);
+            await queryController.RemoveUserBuildsConfigs(connectionId);
 
             QueryController.BuildsPerConnId.Keys.Should().BeEmpty();
             QueryController.BuildsToBeRefreshed.Keys.Should().BeEmpty();
@@ -179,7 +179,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
             var duplicateBuildId = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
             var buildsIds = _fixture
-                .Build<Build>()
+                .Build<BuildConfig>()
                 .Without(p => p.Project)
                 .CreateMany()
                 .Select(b => b.CiExternalId)
@@ -187,7 +187,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
             buildsIds.Add(duplicateBuildId);
             var otherConnectionId = _fixture.Create<string>();
             var otherBuildsIds = _fixture
-                .Build<Build>()
+                .Build<BuildConfig>()
                 .Without(p => p.Project)
                 .CreateMany()
                 .Select(b => b.CiExternalId)
@@ -208,7 +208,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
                 QueryController.BuildsToBeRefreshed.TryAdd(buildsId, buildsId);
             }
 
-            await queryController.RemoveBuilds(connectionId);
+            await queryController.RemoveUserBuildsConfigs(connectionId);
 
             QueryController.BuildsPerConnId.Keys.Should().Contain(new[] { otherConnectionId });
             QueryController.BuildsToBeRefreshed.Should().ContainKeys(otherBuildsIds.ToArray());
@@ -216,16 +216,16 @@ namespace CIDashboard.Web.Tests.Infrastructure
         }
 
         [Test]
-        public async Task RefreshBuildsWithNullConnectionIdCallLastBuildResultForAllBuilds()
+        public async Task SendRefreshBuildResultsWithNullConnectionIdCallLastBuildResultForAllBuilds()
         {
             var buildsProj1 = _fixture
-                .Build<Build>()
+                .Build<BuildConfig>()
                 .Without(p => p.Project)
                 .CreateMany();
              var buildsIds1 = buildsProj1.Select(b => b.CiExternalId)
                  .ToList();
              var buildsProj2 = _fixture
-                  .Build<Build>()
+                  .Build<BuildConfig>()
                   .Without(p => p.Project)
                   .CreateMany();
              var buildsIds2 = buildsProj2.Select(b => b.CiExternalId)
@@ -242,7 +242,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
              Parallel.ForEach(buildsIds,
                  build => QueryController.BuildsToBeRefreshed.TryAdd(build, build));
 
-            await queryController.RefreshBuilds(null);
+            await queryController.SendRefreshBuildResults(null);
 
             foreach(var buildsId in buildsIds)
             {
@@ -252,16 +252,16 @@ namespace CIDashboard.Web.Tests.Infrastructure
         }
         
         [Test]
-        public async Task RefreshBuildsWithConnectionIdCallLastBuildResultForSpecificConnectionIdBuilds()
+        public async Task SendRefreshBuildResultsWithConnectionIdCallLastBuildResultForSpecificConnectionIdBuilds()
         {
             var buildsProj1 = _fixture
-                .Build<Build>()
+                .Build<BuildConfig>()
                 .Without(p => p.Project)
                 .CreateMany();
             var buildsIds1 = buildsProj1.Select(b => b.CiExternalId)
                 .ToList();
             var buildsProj2 = _fixture
-                 .Build<Build>()
+                 .Build<BuildConfig>()
                  .Without(p => p.Project)
                  .CreateMany();
             var buildsIds2 = buildsProj2.Select(b => b.CiExternalId)
@@ -280,7 +280,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
             Parallel.ForEach(buildsIds,
                 build => QueryController.BuildsToBeRefreshed.TryAdd(build, build));
 
-            await queryController.RefreshBuilds(connectionId);
+            await queryController.SendRefreshBuildResults(connectionId);
 
             foreach (var buildsId in buildsIds1)
             {
@@ -304,7 +304,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
             await queryController.RequestAllProjectBuilds(connectionId);
 
             A.CallTo(() => _ciServerService
-                .GetAllProjectBuilds())
+                .GetAllBuildConfigs())
                 .MustHaveHappened();
         }
 
@@ -312,7 +312,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
         public async Task UpdateBuildShouldUpdateBuildsToBeRefreshed()
         {
             var buildsProj = _fixture
-                .Build<Build>()
+                .Build<BuildConfig>()
                 .Without(p => p.Project)
                 .CreateMany();
             var buildsIds = buildsProj.Select(b => b.CiExternalId)
@@ -325,8 +325,8 @@ namespace CIDashboard.Web.Tests.Infrastructure
             Parallel.ForEach(buildsIds,
                 build => QueryController.BuildsToBeRefreshed.TryAdd(build, build));
 
-            var newBuild = _fixture.Build<Models.Build>().Create();
-            await queryController.UpdateBuild(connectionId, -1, newBuild);
+            var newBuild = _fixture.Build<Models.BuildConfig>().Create();
+            await queryController.SendUpdatedBuild(connectionId, -1, newBuild);
 
             QueryController.BuildsPerConnId[connectionId]
                 .Should().Contain(newBuild.CiExternalId);

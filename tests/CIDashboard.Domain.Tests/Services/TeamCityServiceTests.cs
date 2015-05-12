@@ -50,7 +50,7 @@ namespace CIDashboard.Domain.Tests.Services
         }
 
         [Test]
-        public async Task GetAllProjectBuildsReturnsProjectAndBuildTypesCorrectlyMapped()
+        public async Task GetAllBuildConfigsReturnsProjectAndBuildTypesCorrectlyMapped()
         {
             var buildConfigs = _fixture
                 .Build<BuildConfig>()
@@ -60,10 +60,10 @@ namespace CIDashboard.Domain.Tests.Services
                 .Returns(buildConfigs.ToList());
 
             var teamCityService = new TeamCityService(_teamcityClient);
-            var result = await teamCityService.GetAllProjectBuilds();
+            var result = await teamCityService.GetAllBuildConfigs();
 
             var expectedResult = buildConfigs.Select(
-                b => new CiBuild()
+                b => new CiBuildConfig()
                 {
                     CiSource = CiSource.TeamCity,
                     Id = b.Id,

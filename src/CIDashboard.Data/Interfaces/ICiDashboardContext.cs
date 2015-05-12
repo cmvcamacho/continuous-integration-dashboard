@@ -6,7 +6,8 @@ namespace CIDashboard.Data.Interfaces
 {
     public interface ICiDashboardContext : IDisposable
     {
-        DbSet<Build> Builds { get; set; }
+        DbSet<BuildConfig> BuildConfigs { get; set; }
+
         DbSet<Project> Projects { get; set; }
 
         int SaveChanges();

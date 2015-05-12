@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CIDashboard.Data.Entities
 {
-    public class Build
+    public class BuildConfig
     {
         [Key]
         public int Id { get; set; }

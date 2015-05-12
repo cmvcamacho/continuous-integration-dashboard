@@ -76,7 +76,7 @@
     <Compile Include="CompositionRoot\CiServicesModule.cs" />
     <Compile Include="MappingProfiles\TeamCityProfiler.cs" />
     <Compile Include="Entities\CiBuildResult.cs" />
-    <Compile Include="Entities\CiBuild.cs" />
+    <Compile Include="Entities\CiBuildConfig.cs" />
     <Compile Include="Entities\CiProject.cs" />
     <Compile Include="Entities\CiSource.cs" />
     <Compile Include="Extensions\JsonSerialize.cs" />

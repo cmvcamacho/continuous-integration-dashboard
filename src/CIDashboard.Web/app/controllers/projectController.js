@@ -25,18 +25,17 @@
 
 
             //show initial projects and builds
-            var showProjects = function (projectList) {
+            var showProjectsAndBuildConfigs = function (projectList) {
                 $scope.loading = false;
                 $scope.projects.splice(0, $scope.projects.length);
 
-                var list = JSON.parse(projectList);
-                for(var i=0; i<list.length; i++)
-                    $scope.projects.push(list[i]);
+                for (var i = 0; i < projectList.length; i++)
+                    $scope.projects.push(projectList[i]);
             }
 
 
             //add, update projects
-            var sendProjectUpdate = function (projectInfo) {
+            var showUpdatedProject = function (projectInfo) {
                 var idx = (projectInfo.OldId) 
                         ? findProjectProjectId(projectInfo.OldId)
                         : findProjectProjectId(projectInfo.Project.Id);
@@ -80,7 +79,7 @@
                 }
             }
 
-            var sendBuildUpdate = function (buildInfo) {
+            var showUpdatedBuild = function (buildInfo) {
                 var idx = (buildInfo.OldId)
                         ? findProjectAndBuildByBuildId(buildInfo.OldId)
                         : findProjectAndBuildByBuildId(buildInfo.Build.Id);
@@ -116,9 +115,9 @@
                 });
             });
 
-            $scope.$on("sendProjects", function (e, projectList) {
+            $scope.$on("sendProjectsAndBuildConfigs", function (e, projectList) {
                 $scope.$apply(function () {
-                    showProjects(projectList);
+                    showProjectsAndBuildConfigs(projectList);
                 });
             });
 
@@ -128,15 +127,15 @@
                 });
             });
 
-            $scope.$on("sendProjectUpdate", function (e, projectInfo) {
+            $scope.$on("sendUpdatedProject", function (e, projectInfo) {
                 $scope.$apply(function () {
-                    sendProjectUpdate(projectInfo);
+                    showUpdatedProject(projectInfo);
                 });
             });
 
-            $scope.$on("sendBuildUpdate", function (e, buildInfo) {
+            $scope.$on("sendUpdatedBuild", function (e, buildInfo) {
                 $scope.$apply(function () {
-                    sendBuildUpdate(buildInfo);
+                    showUpdatedBuild(buildInfo);
                 });
             }); 
     }]);

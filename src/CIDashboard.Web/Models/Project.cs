@@ -12,16 +12,6 @@ namespace CIDashboard.Web.Models
 
         public int Order { get; set; }
 
-        public int NoBuild
-        {
-            get
-            {
-                return this.Builds == null
-                    ? 0
-                    : this.Builds.Count;
-            }
-        }
-
-        public virtual ICollection<Build> Builds { get; set; }
+        public virtual ICollection<BuildConfig> Builds { get; set; }
     }
 }

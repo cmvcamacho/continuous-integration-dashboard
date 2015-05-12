@@ -86,7 +86,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
         public async Task AddBuildToProjectCallsAddBuildToProject()
         {
             var projectId = _fixture.Create<int>();
-            var build = _fixture.Create<Models.Build>();
+            var build = _fixture.Create<Models.BuildConfig>();
 
             var commandController = new CommandController();
             commandController.CiDashboardService = _ciDashboardService;
@@ -94,7 +94,7 @@ namespace CIDashboard.Web.Tests.Infrastructure
             var result = await commandController.AddBuildToProject(projectId, build);
 
             A.CallTo(() => _ciDashboardService
-                .AddBuildToProject(projectId, A<Build>.That.Matches(p => p.Name == build.Name)))
+                .AddBuildConfigToProject(projectId, A<BuildConfig>.That.Matches(p => p.Name == build.Name)))
                 .MustHaveHappened();
 
             result.Should()

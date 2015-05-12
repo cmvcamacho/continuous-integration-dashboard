@@ -34,21 +34,21 @@ namespace CIDashboard.Web.Infrastructure
             await Task.Run(() => hubContext.Clients.Client(connectionId).sendMessage(new { Status = "Info", Message = message }));
         }
 
-        public async Task AddBuilds(string username, string connectionId)
+        public async Task SendUserProjectsAndBuildConfigs(string username, string connectionId)
         {
             var userProjects = await this.CiDashboardService.GetProjects(username);
-            var buildIds = userProjects
-                .SelectMany(p => p.Builds
+            var buildCiIds = userProjects
+                .SelectMany(p => p.BuildConfigs
                     .Where(b => !string.IsNullOrEmpty(b.CiExternalId))
                     .Select(b => b.CiExternalId)
                     .ToList())
                 .ToList();
 
-            BuildsPerConnId.AddOrUpdate(connectionId, buildIds, (oldkey, oldvalue) => buildIds);
+            BuildsPerConnId.AddOrUpdate(connectionId, buildCiIds, (oldkey, oldvalue) => buildCiIds);
 
             Logger.Debug("Start retrieving builds for {user} and {connectionId}", username, connectionId);
 
-            Parallel.ForEach(buildIds,
+            Parallel.ForEach(buildCiIds,
                 build =>
                 {
                     if(!BuildsToBeRefreshed.ContainsKey(build))
@@ -58,11 +58,11 @@ namespace CIDashboard.Web.Infrastructure
 
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
             var mappedUserProjects = Mapper.Map<IEnumerable<Project>, IEnumerable<Models.Project>>(userProjects);
-            await Task.Run(() => hubContext.Clients.Client(connectionId).sendProjects(mappedUserProjects.ToJson()));
+            await Task.Run(() => hubContext.Clients.Client(connectionId).sendProjectsAndBuildConfigs(mappedUserProjects));
             await Task.Run(() => hubContext.Clients.Client(connectionId).sendMessage(new { Status = "Info", Message = "Your builds are being retrieved" }));
         }
 
-        public async Task RemoveBuilds(string connectionId)
+        public async Task RemoveUserBuildsConfigs(string connectionId)
         {
             var builds = new List<string>();
             if (BuildsPerConnId.ContainsKey(connectionId))
@@ -83,7 +83,7 @@ namespace CIDashboard.Web.Infrastructure
             Logger.Debug("Remove builds for {connectionId}", connectionId);
         }
 
-        public async Task RefreshBuilds(string connectionId)
+        public async Task SendRefreshBuildResults(string connectionId)
         {
             try
             {
@@ -118,18 +118,18 @@ namespace CIDashboard.Web.Infrastructure
         }
 
         // only needed because only Hangfire pro supports async calls
-        public void RefreshBuildsSync()
+        public void SendRefreshBuildResultsSync()
         {
-            RefreshBuilds(null).Wait();
+            this.SendRefreshBuildResults(null).Wait();
         }
 
-        public async Task UpdateProject(string connectionId, int oldId, Models.Project project)
+        public async Task SendUpdatedProject(string connectionId, int oldId, Models.Project project)
         {
             try
             {
                 var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
                 hubContext.Clients.Client(connectionId)
-                    .sendProjectUpdate(new { OldId = oldId, Project = project });
+                    .sendUpdatedProject(new { OldId = oldId, Project = project });
             }
             catch (Exception ex)
             {
@@ -137,7 +137,7 @@ namespace CIDashboard.Web.Infrastructure
             }     
         }
 
-        public async Task UpdateBuild(string connectionId, int oldId, Build build)
+        public async Task SendUpdatedBuild(string connectionId, int oldId, Models.BuildConfig build)
         {
             try
             {
@@ -151,7 +151,7 @@ namespace CIDashboard.Web.Infrastructure
 
                 var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
                 hubContext.Clients.Client(connectionId)
-                    .sendBuildUpdate(new { OldId = oldId, Build = build });
+                    .sendUpdatedBuild(new { OldId = oldId, Build = build });
             }
             catch (Exception ex)
             {
@@ -163,8 +163,8 @@ namespace CIDashboard.Web.Infrastructure
         {
             try
             {
-                var allProjectBuilds = await this.CiServerService.GetAllProjectBuilds();
-                var mappedProjectBuilds = Mapper.Map<IEnumerable<CiBuild>, IEnumerable<Models.ProjectBuild>>(allProjectBuilds);
+                var allProjectBuilds = await this.CiServerService.GetAllBuildConfigs();
+                var mappedProjectBuilds = Mapper.Map<IEnumerable<CiBuildConfig>, IEnumerable<Models.BuildConfig>>(allProjectBuilds);
 
                 var hubContext = GlobalHost.ConnectionManager.GetHubContext<CiDashboardHub>();
                 hubContext.Clients.Client(connectionId)
@@ -181,7 +181,7 @@ namespace CIDashboard.Web.Infrastructure
             try
             {
                 var lastBuildResult = await this.CiServerService.LastBuildResult(buildId);
-                var mappedBuildResult = Mapper.Map<CiBuildResult, Models.Build>(lastBuildResult);
+                var mappedBuildResult = Mapper.Map<CiBuildResult, Build>(lastBuildResult);
 
                 var connIds = BuildsPerConnId.Where(b => b.Value.Contains(mappedBuildResult.CiExternalId))
                     .Select(d => d.Key);

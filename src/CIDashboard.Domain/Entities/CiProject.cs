@@ -12,6 +12,6 @@ namespace CIDashboard.Domain.Entities
 
         public string Url { get; set; }
 
-        public IEnumerable<CiBuild> Builds { get; set; }
+        public IEnumerable<CiBuildConfig> BuildConfigs { get; set; }
     }
 }

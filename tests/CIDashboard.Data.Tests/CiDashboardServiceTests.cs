@@ -32,7 +32,7 @@ namespace CIDashboard.Data.Tests
         [Test]
         public async Task GetProjectsReturnCorrectData()
         {
-            _fixture.Customize<Build>(c => c.Without(f => f.Project));
+            _fixture.Customize<BuildConfig>(c => c.Without(f => f.Project));
             var projects = _fixture
                 .CreateMany<Project>()
                 .AsQueryable();
@@ -72,7 +72,7 @@ namespace CIDashboard.Data.Tests
         [Test]
         public async Task AddProjectReturnCorrectData()
         {
-            _fixture.Customize<Build>(c => c.Without(f => f.Project));
+            _fixture.Customize<BuildConfig>(c => c.Without(f => f.Project));
             var projects = _fixture
                 .CreateMany<Project>()
                 .AsQueryable();
@@ -106,7 +106,7 @@ namespace CIDashboard.Data.Tests
         [Test]
         public async Task UpdateProjectNameWithCorrectData()
         {
-            _fixture.Customize<Build>(c => c.Without(f => f.Project));
+            _fixture.Customize<BuildConfig>(c => c.Without(f => f.Project));
             var projects = _fixture
                 .CreateMany<Project>()
                 .AsQueryable();
@@ -150,7 +150,7 @@ namespace CIDashboard.Data.Tests
         [Test]
         public async Task UpdateProjectOrderWithCorrectData()
         {
-            _fixture.Customize<Build>(c => c.Without(f => f.Project));
+            _fixture.Customize<BuildConfig>(c => c.Without(f => f.Project));
             var projects = _fixture
                 .CreateMany<Project>()
                 .AsQueryable();
@@ -195,7 +195,7 @@ namespace CIDashboard.Data.Tests
         [Test]
         public async Task RemoveProjectShouldRemoveTheProject()
         {
-            _fixture.Customize<Build>(c => c.Without(f => f.Project));
+            _fixture.Customize<BuildConfig>(c => c.Without(f => f.Project));
             var projects = _fixture
                 .CreateMany<Project>()
                 .AsQueryable();
@@ -236,9 +236,9 @@ namespace CIDashboard.Data.Tests
         }
 
                 [Test]
-        public async Task AddBuildToProjectShouldAddTheBuildToProject()
+        public async Task AddBuildConfigToProjectShouldAddTheBuildToProject()
         {
-            _fixture.Customize<Build>(c => c.Without(f => f.Project));
+            _fixture.Customize<BuildConfig>(c => c.Without(f => f.Project));
             var projects = _fixture
                 .CreateMany<Project>()
                 .AsQueryable();
@@ -265,11 +265,11 @@ namespace CIDashboard.Data.Tests
             _fixture.Inject(context);
 
             var build = _fixture
-                .Create<Build>();
+                .Create<BuildConfig>();
 
             var service = _fixture.Create<CiDashboardService>();
 
-            var result = await service.AddBuildToProject(project.Id, build);
+            var result = await service.AddBuildConfigToProject(project.Id, build);
 
             A.CallTo(() => context.SaveChanges())
                 .MustHaveHappened();

@@ -77,16 +77,16 @@ namespace CIDashboard.Web.Infrastructure
             return false;
         }
 
-        public async Task<Build> AddBuildToProject(int projectId, Build build)
+        public async Task<BuildConfig> AddBuildToProject(int projectId, BuildConfig build)
         {
             try
             {
                 Logger.Debug("Adding build {build} to project {projectId}", build, projectId);
 
-                var mappedInBuild = Mapper.Map<Build, Data.Entities.Build>(build);
-                var createdBuild = await CiDashboardService.AddBuildToProject(projectId, mappedInBuild);
+                var mappedInBuild = Mapper.Map<BuildConfig, Data.Entities.BuildConfig>(build);
+                var createdBuild = await CiDashboardService.AddBuildConfigToProject(projectId, mappedInBuild);
 
-                var mappedOutBuild = Mapper.Map<Data.Entities.Build, Build>(createdBuild);
+                var mappedOutBuild = Mapper.Map<Data.Entities.BuildConfig, BuildConfig>(createdBuild);
                 Logger.Debug("Added build {build} to project {projectId}", build, projectId);
                 return mappedOutBuild;
             }

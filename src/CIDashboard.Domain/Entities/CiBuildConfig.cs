@@ -1,6 +1,6 @@
 ﻿namespace CIDashboard.Domain.Entities
 {
-    public class CiBuild
+    public class CiBuildConfig
     {
         public CiSource CiSource { get; set; }
 

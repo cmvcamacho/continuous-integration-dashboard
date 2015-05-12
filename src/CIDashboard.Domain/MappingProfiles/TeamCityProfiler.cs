@@ -11,10 +11,10 @@ namespace CIDashboard.Domain.MappingProfiles
         {
             Mapper.CreateMap<Project, CiProject>()
                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.WebUrl))
-                .ForMember(dest => dest.Builds, opt => opt.MapFrom(src => src.BuildTypes.BuildType))
+                .ForMember(dest => dest.BuildConfigs, opt => opt.MapFrom(src => src.BuildTypes.BuildType))
                 .AfterMap((src, dest) => dest.CiSource = CiSource.TeamCity);
 
-            Mapper.CreateMap<BuildConfig, CiBuild>()
+            Mapper.CreateMap<BuildConfig, CiBuildConfig>()
                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.WebUrl))
                 .AfterMap((src, dest) => dest.CiSource = CiSource.TeamCity);
 

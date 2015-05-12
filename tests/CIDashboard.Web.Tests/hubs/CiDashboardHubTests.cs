@@ -33,7 +33,7 @@ namespace CIDashboard.Web.Tests.Hubs
         }
 
         [Test]
-        public async Task OnConnectCallsAddBuildsOfRefreshInfoService()
+        public async Task OnConnectCallsSendUserBuildConfigsToUiOfRefreshInfoService()
         {
             var username = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
@@ -45,12 +45,12 @@ namespace CIDashboard.Web.Tests.Hubs
 
             await hub.OnConnected();
 
-            A.CallTo(() => this.queryController.AddBuilds(username, connectionId))
+            A.CallTo(() => this.queryController.SendUserProjectsAndBuildConfigs(username, connectionId))
                 .MustHaveHappened();
         }
 
         [Test]
-        public async Task OnReconnectedCallsAddBuildsOfRefreshInfoService()
+        public async Task OnReconnectedCallsSendUserBuildConfigsToUiOfRefreshInfoService()
         {
             var username = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
@@ -62,12 +62,12 @@ namespace CIDashboard.Web.Tests.Hubs
 
             await hub.OnReconnected();
 
-            A.CallTo(() => this.queryController.AddBuilds(username, connectionId))
+            A.CallTo(() => this.queryController.SendUserProjectsAndBuildConfigs(username, connectionId))
                 .MustHaveHappened();
         }
 
         [Test]
-        public async Task OnDisconnectedCallsRemoveBuildsOfRefreshInfoService()
+        public async Task OnDisconnectedCallsRemoveUserBuildsConfigsOfRefreshInfoService()
         {
             var username = _fixture.Create<string>();
             var connectionId = _fixture.Create<string>();
@@ -79,12 +79,12 @@ namespace CIDashboard.Web.Tests.Hubs
 
             await hub.OnDisconnected(true);
 
-            A.CallTo(() => this.queryController.RemoveBuilds(connectionId))
+            A.CallTo(() => this.queryController.RemoveUserBuildsConfigs(connectionId))
                 .MustHaveHappened();
         }
 
         [Test]
-        public async Task RequestRefreshCallsRefreshBuildsForConnectionIdOnly()
+        public async Task RequestRefreshCallsSendRefreshBuildResultsForConnectionIdOnly()
         {
             var connectionId = _fixture.Create<string>();
             A.CallTo(() => _context.ConnectionId).Returns(connectionId);
@@ -93,7 +93,7 @@ namespace CIDashboard.Web.Tests.Hubs
 
             await hub.RequestRefresh();
 
-            A.CallTo(() => this.queryController.RefreshBuilds(connectionId))
+            A.CallTo(() => this.queryController.SendRefreshBuildResults(connectionId))
                 .MustHaveHappened();
         }
 
@@ -132,7 +132,7 @@ namespace CIDashboard.Web.Tests.Hubs
             A.CallTo(() => this.commandController.AddNewProject(username, project))
                 .MustHaveHappened();
 
-            A.CallTo(() => this.queryController.UpdateProject(connectionId, project.Id, resultProject))
+            A.CallTo(() => this.queryController.SendUpdatedProject(connectionId, project.Id, resultProject))
                 .MustHaveHappened();
         }
 
@@ -193,8 +193,8 @@ namespace CIDashboard.Web.Tests.Hubs
 
             var project = _fixture.Create<Project>();
 
-            var build = _fixture.Create<Build>();
-            var newBuild = _fixture.Create<Build>();
+            var build = _fixture.Create<BuildConfig>();
+            var newBuild = _fixture.Create<BuildConfig>();
             A.CallTo(() => this.commandController.AddBuildToProject(project.Id, build))
                 .Returns(newBuild);
 
@@ -204,7 +204,7 @@ namespace CIDashboard.Web.Tests.Hubs
             A.CallTo(() => this.commandController.AddBuildToProject(project.Id, build))
                 .MustHaveHappened();
 
-            A.CallTo(() => this.queryController.UpdateBuild(connectionId, build.Id, newBuild))
+            A.CallTo(() => this.queryController.SendUpdatedBuild(connectionId, build.Id, newBuild))
                 .MustHaveHappened();
         }
     }

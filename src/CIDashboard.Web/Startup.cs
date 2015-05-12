@@ -88,7 +88,7 @@ namespace CIDashboard.Web
             });
 
             //every 5 minutes
-            RecurringJob.AddOrUpdate("RefreshBuilds", () => container.Resolve<IQueryController>().RefreshBuildsSync(), "*/5 * * * *");
+            RecurringJob.AddOrUpdate("SendRefreshBuildResults", () => container.Resolve<IQueryController>().SendRefreshBuildResultsSync(), "*/5 * * * *");
         }
 
         private void ConfigureLog()

@@ -28,7 +28,7 @@ namespace CIDashboard.Web.Hubs
 
             Logger.Debug("OnConnected for {username} and {connectionId}", username, connectionId);
 
-            await this.queryController.AddBuilds(username, connectionId);
+            await this.queryController.SendUserProjectsAndBuildConfigs(username, connectionId);
 
             await base.OnConnected();
         }
@@ -38,7 +38,7 @@ namespace CIDashboard.Web.Hubs
             var connectionId = Context.ConnectionId;
             Logger.Debug("OnDisconnected for {connectionId}", connectionId);
 
-            await this.queryController.RemoveBuilds(connectionId);
+            await this.queryController.RemoveUserBuildsConfigs(connectionId);
 
             await base.OnDisconnected(stopCalled);
         }
@@ -50,7 +50,7 @@ namespace CIDashboard.Web.Hubs
 
             Logger.Debug("OnReconnected for {username} and {connectionId}", username, connectionId);
 
-            await this.queryController.AddBuilds(username, connectionId);
+            await this.queryController.SendUserProjectsAndBuildConfigs(username, connectionId);
 
             await base.OnReconnected();
         }
@@ -58,7 +58,7 @@ namespace CIDashboard.Web.Hubs
         public async Task RequestRefresh()
         {
             var connectionId = Context.ConnectionId;
-            await this.queryController.RefreshBuilds(connectionId);
+            await this.queryController.SendRefreshBuildResults(connectionId);
         }
 
         public async Task RequestAllProjectBuilds()
@@ -73,7 +73,7 @@ namespace CIDashboard.Web.Hubs
             var connectionId = Context.ConnectionId;
             var projectCreated = await this.commandController.AddNewProject(username, project);
             if (projectCreated != null)
-                await this.queryController.UpdateProject(connectionId, project.Id, projectCreated);
+                await this.queryController.SendUpdatedProject(connectionId, project.Id, projectCreated);
         }
 
         public async Task UpdateProjectName(int projectId, string projectName)
@@ -92,13 +92,13 @@ namespace CIDashboard.Web.Hubs
                 await this.queryController.SendMessage(connectionId, "Project removed.");
         }
 
-        public async Task AddBuildToProject(int projectId, Build build)
+        public async Task AddBuildToProject(int projectId, BuildConfig build)
         {
             var connectionId = Context.ConnectionId;
             var buildCreated = await this.commandController.AddBuildToProject(projectId, build);
             if (buildCreated != null)
             {
-                await this.queryController.UpdateBuild(connectionId, build.Id, buildCreated);
+                await this.queryController.SendUpdatedBuild(connectionId, build.Id, buildCreated);
             }
         }
     }

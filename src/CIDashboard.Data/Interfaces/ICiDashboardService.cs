@@ -16,6 +16,6 @@ namespace CIDashboard.Data.Interfaces
 
         Task<bool> RemoveProject(int projectId);
 
-        Task<Build> AddBuildToProject(int projectId, Build build);
+        Task<BuildConfig> AddBuildConfigToProject(int projectId, BuildConfig buildConfig);
     }
 }

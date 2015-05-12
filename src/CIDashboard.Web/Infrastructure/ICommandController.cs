@@ -13,6 +13,6 @@ namespace CIDashboard.Web.Infrastructure
 
         Task<bool> RemoveProject(int projectId);
 
-        Task<Build> AddBuildToProject(int projectId, Build build);
+        Task<BuildConfig> AddBuildToProject(int projectId, BuildConfig build);
     }
 }

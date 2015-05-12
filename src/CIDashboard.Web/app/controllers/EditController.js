@@ -20,20 +20,28 @@
 
                 //helpers
                 var findProjectAndBuildByBuildId = function (buildId) {
-                    for (var i = 0; i < $scope.projects.length; i++) {
-                        for (var j = 0; j < $scope.projects[i].Builds.length; j++) {
-                            if ($scope.projects[i].Builds[j].Id === buildId) {
-                                return { "projectIndex": i, "buildIndex": j };
+                    if ($scope.projects) {
+                        for (var i = 0; i < $scope.projects.length; i++) {
+                            if ($scope.projects[i].Builds) {
+                                for (var j = 0; j < $scope.projects[i].Builds.length; j++) {
+                                    if ($scope.projects[i].Builds[j].Id === buildId) {
+                                        return { "projectIndex": i, "buildIndex": j };
+                                    }
+                                }
                             }
                         }
                     }
                     return findProjectAndBuildByCiExternalId(buildId);
                 }
                 var findProjectAndBuildByCiExternalId = function (buildId) {
-                    for (var i = 0; i < $scope.projects.length; i++) {
-                        for (var j = 0; j < $scope.projects[i].Builds.length; j++) {
-                            if ($scope.projects[i].Builds[j].CiExternalId === buildId) {
-                                return { "projectIndex": i, "buildIndex": j };
+                    if ($scope.projects) {
+                        for (var i = 0; i < $scope.projects.length; i++) {
+                            if ($scope.projects[i].Builds) {
+                                for (var j = 0; j < $scope.projects[i].Builds.length; j++) {
+                                    if ($scope.projects[i].Builds[j].CiExternalId === buildId) {
+                                        return { "projectIndex": i, "buildIndex": j };
+                                    }
+                                }
                             }
                         }
                     }
@@ -41,9 +49,11 @@
                 }
 
                 var findProjectProjectId = function (projectId) {
-                    for (var i = 0; i < $scope.projects.length; i++) {
-                        if ($scope.projects[i].Id === projectId) {
-                            return { "projectIndex": i };
+                    if ($scope.projects) {
+                        for (var i = 0; i < $scope.projects.length; i++) {
+                            if ($scope.projects[i].Id === projectId) {
+                                return { "projectIndex": i };
+                            }
                         }
                     }
                     return null;

@@ -18,6 +18,6 @@ namespace CIDashboard.Data.Entities
 
         public int Order { get; set; }
 
-        public virtual ICollection<Build> Builds { get; set; }
+        public virtual ICollection<BuildConfig> BuildConfigs { get; set; }
     }
 }

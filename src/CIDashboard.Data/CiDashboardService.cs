@@ -18,7 +18,7 @@ namespace CIDashboard.Data
             {
                 return await context.Projects
                     .Where(p => p.User == username)
-                    .Include(p => p.Builds)
+                    .Include(p => p.BuildConfigs)
                     .OrderBy(p => p.Order)
                     .ToListAsync();
             }
@@ -88,7 +88,7 @@ namespace CIDashboard.Data
             }
         }
 
-        public async Task<Build> AddBuildToProject(int projectId, Build build)
+        public async Task<BuildConfig> AddBuildConfigToProject(int projectId, BuildConfig buildConfig)
         {
             using (var context = CtxFactory.Create())
             {
@@ -99,12 +99,12 @@ namespace CIDashboard.Data
                 if (project == null)
                     return null;
 
-                build.ProjectId = projectId;
-                context.Builds.Add(build);
+                buildConfig.ProjectId = projectId;
+                context.BuildConfigs.Add(buildConfig);
 
                 context.SaveChanges();
             }
-            return build;
+            return buildConfig;
         }
     }
 }
