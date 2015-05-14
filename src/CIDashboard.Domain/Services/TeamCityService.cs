@@ -44,8 +44,20 @@ namespace CIDashboard.Domain.Services
             Logger.Debug("Retrieving from TeamCity all BuildConfigs");
             var buildConfigs = await Task.Run(() => this._client.BuildConfigs.All());
 
+            var projectsIds = buildConfigs.Select(b => b.ProjectId).Distinct();
+            var projectsToRetrieve = projectsIds
+                .Select(this.GetProjectDetails)
+                .ToList();
+
+            var projects = await Task.WhenAll(projectsToRetrieve);
+            foreach(var project in projects.Where(project => project.Archived)) 
+            {
+                buildConfigs.RemoveAll(b => b.ProjectId == project.Id);
+            }
+
             var mappedBuilds = Mapper.Map<IEnumerable<BuildConfig>, IEnumerable<CiBuildConfig>>(buildConfigs);
 
+            Logger.Debug("Retrieved from TeamCity all BuildConfigs");
             return mappedBuilds;
         }
 
@@ -170,5 +182,25 @@ namespace CIDashboard.Domain.Services
                 return false;
             });
         }
+
+        private async Task<Project> GetProjectDetails(string projectId)
+        {
+            var projectDetails = await Task.Run(
+                () =>
+                {
+                    try
+                    {
+                        return _client.Projects.ById(projectId);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex, "Error retrieving from TeamCity project details for {projectId}", projectId);
+                    }
+
+                    return null;
+                });
+            return projectDetails;
+        }
+
     }
 }

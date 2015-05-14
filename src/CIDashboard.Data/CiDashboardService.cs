@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
@@ -71,7 +70,7 @@ namespace CIDashboard.Data
             }
         }
 
-        public async Task<bool> RemoveProject(int projectId)
+        public async Task<Project> RemoveProject(int projectId)
         {
             using (var context = CtxFactory.Create())
             {
@@ -80,11 +79,11 @@ namespace CIDashboard.Data
                     .FirstOrDefaultAsync();
 
                 if (project == null)
-                    return false;
+                    return null;
 
                 context.Projects.Remove(project);
                 context.SaveChanges();
-                return true;
+                return project;
             }
         }
 
@@ -104,7 +103,60 @@ namespace CIDashboard.Data
 
                 context.SaveChanges();
             }
+
             return buildConfig;
+        }
+
+        public async Task<BuildConfig> RemoveBuildConfig(int buildId)
+        {
+            using (var context = CtxFactory.Create())
+            {
+                var build = await context.BuildConfigs
+                    .Where(p => p.Id == buildId)
+                    .FirstOrDefaultAsync();
+
+                if (build == null)
+                    return null;
+
+                context.BuildConfigs.Remove(build);
+                context.SaveChanges();
+                return build;
+            }
+        }
+
+        public async Task<bool> UpdateBuildConfigExternalId(int buildId, string buildName, string externalId)
+        {
+            using (var context = CtxFactory.Create())
+            {
+                var build = await context.BuildConfigs
+                    .Where(p => p.Id == buildId)
+                    .FirstOrDefaultAsync();
+
+                if (build == null)
+                    return false;
+
+                build.Name = buildName;
+                build.CiExternalId = externalId;
+                context.SaveChanges();
+                return true;
+            }
+        }
+
+        public async Task<bool> UpdateBuildConfigOrder(int buildId, int position)
+        {
+            using (var context = CtxFactory.Create())
+            {
+                var build = await context.BuildConfigs
+                    .Where(p => p.Id == buildId)
+                    .FirstOrDefaultAsync();
+
+                if (build == null)
+                    return false;
+
+                build.Order = position;
+                context.SaveChanges();
+                return true;
+            }
         }
     }
 }

@@ -6,12 +6,12 @@
         </a>
     </script>
 
-    <button type="button" class="close topRight" data-dismiss="alert" ng-show="editMode" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <button type="button" class="close topRight" data-dismiss="alert" ng-show="editMode" aria-label="Close" ng-click="removeBuild(build.Id)"><span aria-hidden="true">&times;</span></button>
     <p class="text-center header" ng-hide="editMode">{{ build.Name }}</p>
     <span class="buildSelector" ng-show="editMode">
-        <input type="text" class="form-control" 
+        <input type="text" class="form-control"
                ng-model="build.Name"
-               typeahead="item as item.Name for item in getBuildsToShow($viewValue) | limitTo : 20"
+               typeahead="item as item.Name for item in getBuildsToShow($viewValue) | limitTo : 100"
                typeahead-template-url="typeahead-item.html"
                typeahead-on-select='onBuildSelect($item, build.Id)' />
     </span>

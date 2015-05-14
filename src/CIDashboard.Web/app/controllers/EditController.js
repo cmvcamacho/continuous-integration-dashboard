@@ -141,17 +141,30 @@
                     }
                 }
 
+                $scope.removeBuild = function (buildId) {
+                    var idx = findProjectAndBuildByBuildId(buildId);
+                    if (!idx) {
+                        toastr.error('Build not found: ' + projectId);
+                    }
+                    else {
+                        $scope.projects[idx.projectIndex].Builds.splice(idx.buildIndex, 1);
+                        $editService.removeBuild(buildId);
+                    }
+                }
+
                 $scope.onBuildSelect = function ($item, buildId) {
                     var idx = findProjectAndBuildByBuildId(buildId);
                     if (idx){
                         var build = $scope.projects[idx.projectIndex].Builds[idx.buildIndex];
-                        build.CiExternalId = $item.Id;
+                        build.CiExternalId = $item.CiExternalId;
                         build.Name = $item.Name;
                         build.Version = null;
                         build.Status = null;
                         build.Url = null;
                         build.NumberTestPassed = 0;
                         build.NumberTestFailed = 0;
+
+                        $editService.updateBuildNameAndExternalId(buildId, $item.Name, $item.CiExternalId);
                     }
                 };
 

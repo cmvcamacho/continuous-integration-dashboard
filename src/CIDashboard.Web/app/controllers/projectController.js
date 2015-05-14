@@ -21,6 +21,8 @@
                     toastr.info(message.Message);
                 else if (message.Status === "Success")
                     toastr.success(message.Message);
+                else if (message.Status === "Error")
+                    toastr.error(message.Message);
             }
 
 
@@ -66,7 +68,9 @@
 
             //add, update build results
             var showBuildResult = function (buildResult) {
-                var idx = findProjectAndBuildByBuildId(buildResult.CiExternalId);
+                var idx = findProjectAndBuildByBuildId(buildResult.Id);
+                if (!idx)
+                    idx = findProjectAndBuildByBuildId(buildResult.CiExternalId);
                 if (!idx) {
                     toastr.error('Build not found: ' + buildResult.Name);
                 }
@@ -97,6 +101,10 @@
 
             $scope.addBuildToProject = function (projectId) {
                 $scope.$parent.addBuildToProject(projectId);
+            }
+
+            $scope.removeBuild = function (buildId) {
+                $scope.$parent.removeBuild(buildId);
             }
 
             $scope.getBuildsToShow = function (search) {

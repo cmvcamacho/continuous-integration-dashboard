@@ -111,6 +111,9 @@
 
 .buildSelector ul {
     font-size: 80%;
+    width: 600px;
+    overflow-y: auto;
+    height: 250px;
 }
 
 .buildSelector input {

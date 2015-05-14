@@ -191,8 +191,13 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Infrastructure\CommandController.cs" />
-    <Compile Include="Infrastructure\ICommandController.cs" />
+    <Compile Include="Hubs\ICiDashboardHub.cs" />
+    <Compile Include="Infrastructure\CommandProcessor.cs" />
+    <Compile Include="Infrastructure\InformationQuery.cs" />
+    <Compile Include="Infrastructure\Interfaces\ICommandProcessor.cs" />
+    <Compile Include="Infrastructure\Interfaces\IRefreshInformation.cs" />
+    <Compile Include="Infrastructure\Interfaces\IInformationQuery.cs" />
+    <Compile Include="Infrastructure\RefreshInformation.cs" />
     <Compile Include="MappingProfiles\ViewModelProfilers.cs" />
     <Compile Include="CompositionRoot\WebModule.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -200,12 +205,16 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\CiDashboardHub.cs" />
-    <Compile Include="Infrastructure\IQueryController.cs" />
-    <Compile Include="Infrastructure\QueryController.cs" />
+    <Compile Include="Infrastructure\Interfaces\IConnectionsManager.cs" />
+    <Compile Include="Infrastructure\ConnectionsManager.cs" />
     <Compile Include="Models\BuildConfig.cs" />
     <Compile Include="Models\Build.cs" />
     <Compile Include="Models\CiSource.cs" />
+    <Compile Include="Models\FeedbackMessage.cs" />
     <Compile Include="Models\Project.cs" />
+    <Compile Include="Models\BuildConfigUpdated.cs" />
+    <Compile Include="Models\ProjectUpdated.cs" />
+    <Compile Include="Models\RefreshStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>

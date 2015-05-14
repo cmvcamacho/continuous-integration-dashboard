@@ -173,8 +173,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Hubs\CiDashboardHubTests.cs" />
-    <Compile Include="Infrastructure\CommandControllerTests.cs" />
-    <Compile Include="Infrastructure\QueryControllerTests.cs" />
+    <Compile Include="Infrastructure\CommandProcessorTests.cs" />
+    <Compile Include="Infrastructure\ConnectionsManagerTests.cs" />
+    <Compile Include="Infrastructure\InformationQueryTests.cs" />
+    <Compile Include="Infrastructure\RefreshInformationTests.cs" />
     <Compile Include="LocalAddin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

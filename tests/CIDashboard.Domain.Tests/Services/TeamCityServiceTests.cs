@@ -36,31 +36,25 @@ namespace CIDashboard.Domain.Tests.Services
         }
 
         [Test]
-        public void ParameterlessConstructorLoginsAsGuest()
+        public void ParameterlessConstructor_LoginsAsGuest()
         {
             new TeamCityService(this._teamcityClient);
             A.CallTo(() => _teamcityClient.ConnectAsGuest()).MustHaveHappened();
         }
 
         [Test]
-        public void ConstructorWithParametersLoginsWithUserPwd()
+        public void ConstructorWithParameters_LoginsWithUserPwd()
         {
             new TeamCityService(this._teamcityClient, "user", "pwd");
             A.CallTo(() => _teamcityClient.Connect("user", "pwd")).MustHaveHappened();
         }
 
         [Test]
-        public async Task GetAllBuildConfigsReturnsProjectAndBuildTypesCorrectlyMapped()
+        public async Task GetAllBuildConfigs_ReturnsProjectAndBuildTypesCorrectlyMapped_FilteringTheOnesThatTheProjectIsArchived()
         {
             var buildConfigs = _fixture
                 .Build<BuildConfig>()
                 .CreateMany();
-
-            A.CallTo(() => _teamcityClient.BuildConfigs.All())
-                .Returns(buildConfigs.ToList());
-
-            var teamCityService = new TeamCityService(_teamcityClient);
-            var result = await teamCityService.GetAllBuildConfigs();
 
             var expectedResult = buildConfigs.Select(
                 b => new CiBuildConfig()
@@ -70,14 +64,34 @@ namespace CIDashboard.Domain.Tests.Services
                     Name = b.Name,
                     Url = b.WebUrl,
                     ProjectName = b.ProjectName
-                });
+                })
+                .ToList();
+
+            A.CallTo(() => _teamcityClient.BuildConfigs.All())
+                .Returns(buildConfigs.ToList());
+
+            foreach(var buildConfig in buildConfigs)
+            {
+                var project = _fixture
+                    .Build<Project>()
+                    .With(p => p.Id, buildConfig.ProjectId)
+                    .Create();
+                A.CallTo(() => _teamcityClient.Projects.ById(buildConfig.ProjectId))
+                    .Returns(project);
+
+                if(project.Archived)
+                    expectedResult.Remove(expectedResult.First(b => b.Id == buildConfig.Id));
+            }
+
+            var teamCityService = new TeamCityService(_teamcityClient);
+            var result = await teamCityService.GetAllBuildConfigs();
 
             result.ShouldBeEquivalentTo(expectedResult);     
         }
 
         [TestCase("SUCCESS", CiBuildResultStatus.Success)]
         [TestCase("FAILURE", CiBuildResultStatus.Failure)]
-        public async Task LastBuildResultReturnsInfoCorrectlyMapped(string status, CiBuildResultStatus resultStatus)
+        public async Task LastBuildResult_ReturnsInfoCorrectlyMapped(string status, CiBuildResultStatus resultStatus)
         {
             var buildId = _fixture.Create<string>();
             var build = _fixture
@@ -111,7 +125,7 @@ namespace CIDashboard.Domain.Tests.Services
         }
 
         [Test]
-        public async Task LastBuildResultReturnsStatisticsCorrectlyMapped()
+        public async Task LastBuildResult_ReturnsStatisticsCorrectlyMapped()
         {
             var buildId = _fixture.Create<string>();
             var build = _fixture
@@ -161,7 +175,7 @@ namespace CIDashboard.Domain.Tests.Services
         }
 
         [Test]
-        public async Task LastBuildResultReturnsRunningBuildWhenBuildIsRunning()
+        public async Task LastBuildResult_WhenBuildIsRunning_ReturnsRunningBuildStatus()
         {
             var buildId = _fixture.Create<string>();
             var build = _fixture
@@ -196,6 +210,5 @@ namespace CIDashboard.Domain.Tests.Services
 
             result.ShouldBeEquivalentTo(expectedResult);
         }
-
     }
 }

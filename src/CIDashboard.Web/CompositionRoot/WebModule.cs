@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using CIDashboard.Web.Infrastructure;
+using CIDashboard.Web.Infrastructure.Interfaces;
 using Hangfire;
 
 namespace CIDashboard.Web.CompositionRoot
@@ -9,23 +10,33 @@ namespace CIDashboard.Web.CompositionRoot
         protected override void Load(ContainerBuilder builder)
         {
             builder
-                .RegisterType<QueryController>()
-                .As<IQueryController>()
+                .RegisterType<ConnectionsManager>()
+                .As<IConnectionsManager>()
                 .ExternallyOwned()
+                .PropertiesAutowired()
+                .SingleInstance();
+
+            builder
+                .RegisterType<CommandProcessor>()
+                .As<ICommandProcessor>()
                 .PropertiesAutowired()
                 .InstancePerLifetimeScope();
 
             builder
-                .RegisterType<CommandController>()
-                .As<ICommandController>()
-                .ExternallyOwned()
+                .RegisterType<RefreshInformation>()
+                .As<IRefreshInformation>()
+                .PropertiesAutowired()
+                .InstancePerLifetimeScope();
+
+            builder
+                .RegisterType<InformationQuery>()
+                .As<IInformationQuery>()
                 .PropertiesAutowired()
                 .InstancePerLifetimeScope();
 
             builder
                 .RegisterType<BackgroundJobClient>()
                 .As<IBackgroundJobClient>()
-                .ExternallyOwned()
                 .InstancePerLifetimeScope();
         }
     }

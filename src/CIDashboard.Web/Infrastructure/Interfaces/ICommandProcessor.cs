@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using CIDashboard.Data.Entities;
+﻿using System.Threading.Tasks;
+using CIDashboard.Web.Models;
 
-namespace CIDashboard.Data.Interfaces
+namespace CIDashboard.Web.Infrastructure.Interfaces
 {
-    public interface ICiDashboardService
+    public interface ICommandProcessor 
     {
-        Task<IEnumerable<Project>> GetProjects(string username);
-
-        Task<Project> AddProject(string username, Project project);
+        Task<Project> AddNewProject(string username, Project project);
 
         Task<bool> UpdateProjectName(int projectId, string projectName);
 
@@ -16,12 +13,13 @@ namespace CIDashboard.Data.Interfaces
 
         Task<Project> RemoveProject(int projectId);
 
-        Task<BuildConfig> AddBuildConfigToProject(int projectId, BuildConfig buildConfig);
+        Task<BuildConfig> AddBuildConfigToProject(int projectId, BuildConfig build);
 
         Task<BuildConfig> RemoveBuildConfig(int buildId);
 
         Task<bool> UpdateBuildConfigExternalId(int buildId, string buildName, string externalId);
 
         Task<bool> UpdateBuildConfigOrder(int buildId, int position);
+
     }
 }

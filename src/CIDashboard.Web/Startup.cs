@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Linq;
 using Autofac;
 using Autofac.Integration.SignalR;
@@ -10,6 +11,7 @@ using CIDashboard.Domain.MappingProfiles;
 using CIDashboard.Web.CompositionRoot;
 using CIDashboard.Web.Hubs;
 using CIDashboard.Web.Infrastructure;
+using CIDashboard.Web.Infrastructure.Interfaces;
 using CIDashboard.Web.MappingProfiles;
 using Hangfire;
 using Hangfire.SqlServer;
@@ -87,8 +89,10 @@ namespace CIDashboard.Web
                 configHangfire.UseServer();
             });
 
-            //every 5 minutes
-            RecurringJob.AddOrUpdate("SendRefreshBuildResults", () => container.Resolve<IQueryController>().SendRefreshBuildResultsSync(), "*/5 * * * *");
+            var refreshInfoCron = ConfigurationManager.AppSettings["RefreshInfoCron"];
+            if(string.IsNullOrEmpty(refreshInfoCron))
+                refreshInfoCron = "*/5 * * * *";
+            RecurringJob.AddOrUpdate("SendRefreshBuildResults", () => container.Resolve<IRefreshInformation>().SendRefreshBuildResultsSync(), refreshInfoCron);
         }
 
         private void ConfigureLog()

@@ -10,8 +10,8 @@
 
             setTimeout(requesProjectBuilds, 200);
 
-            signalrService.getProxy().on('startRefresh', function (status) {
-                $rootScope.$broadcast('startRefresh', status);
+            signalrService.getProxy().on('refreshStatus', function (status) {
+                $rootScope.$broadcast('refreshStatus', status);
             });
 
             signalrService.getProxy().on('stopRefresh', function (status) {
@@ -76,7 +76,23 @@
                     console.log('addBuildToProject error: ' + error);
                 });
         };
-        
+    
+        var removeBuild = function (buildId) {
+            signalrService.getProxy()
+                .invoke('removeBuild', buildId)
+                .fail(function (error) {
+                    console.log('removeBuild error: ' + error);
+                });
+        }
+    
+        var updateBuildNameAndExternalId = function (buildId, buildName, ciExternalId) {
+            signalrService.getProxy()
+                .invoke('updateBuildConfigExternalId', buildId, buildName, ciExternalId)
+                .fail(function (error) {
+                    console.log('updateBuildConfigExternalId error: ' + error);
+                });
+        }
+
 
 
         return {
@@ -86,7 +102,9 @@
             addNewProject: addNewProject,
             updateProjectName: updateProjectName,
             removeProject: removeProject,
-            addBuildToProject: addBuildToProject
+            addBuildToProject: addBuildToProject,
+            removeBuild: removeBuild,
+            updateBuildNameAndExternalId: updateBuildNameAndExternalId
         };
     }]);
 }());
