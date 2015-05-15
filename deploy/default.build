@@ -78,16 +78,16 @@
 	</Target>
 	
 	<Target Name="ManageIIS">
-		<Message Text="*** SitePath=$(WebServerInstallDir)\$(SiteNamePath) ***"/>
+		<Message Text="*** SitePath=$(WebServerInstallDir)\$(SiteName) ***"/>
 		<MSBuild Projects="$(Tools)\MSBuildGlobalFiles\ManageWebsite.targets" Targets="Default"
-				 Properties="MachineName=$(WebServerMachine);SiteName=$(SiteName);SitePath=$(WebServerInstallDir)\$(SiteNamePath);RecreateAppPool=$(RecreateAppPools);AppPoolUser=$(AppPoolUser);AppPoolPass=$(AppPoolPass);HttpPort=$(HttpPort)" />
+				 Properties="MachineName=$(WebServerMachine);SiteName=$(SiteName);SitePath=$(WebServerInstallDir)\$(SiteName);RecreateAppPool=$(RecreateAppPools);AppPoolUser=$(AppPoolUser);AppPoolPass=$(AppPoolPass);HttpPort=$(HttpPort)" />
 	</Target>
 
 	<Target Name="DeployFiles">
 		<PropertyGroup>
 			<UncPath></UncPath>
 		</PropertyGroup>
-		<LocalPathToUncPath MachineName="$(WebServerMachine)" LocalPath="$(WebServerInstallDir)\$(SiteNamePath)">
+		<LocalPathToUncPath MachineName="$(WebServerMachine)" LocalPath="$(WebServerInstallDir)\$(SiteName)">
 			<Output PropertyName="UncPath" TaskParameter="UncPath"/>
 		</LocalPathToUncPath>
 		<RemoveDir Directories="$(UncPath)" ContinueOnError="true" />
@@ -108,7 +108,7 @@
 		<PropertyGroup>
 			<UncPath></UncPath>
 		</PropertyGroup>
-		<LocalPathToUncPath MachineName="$(WebServerMachine)" LocalPath="$(WebServerInstallDir)\$(SiteNamePath)">
+		<LocalPathToUncPath MachineName="$(WebServerMachine)" LocalPath="$(WebServerInstallDir)\$(SiteName)">
 			<Output PropertyName="UncPath" TaskParameter="UncPath"/>
 		</LocalPathToUncPath>
 

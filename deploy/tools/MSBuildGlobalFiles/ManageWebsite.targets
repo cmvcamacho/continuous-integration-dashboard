@@ -47,6 +47,11 @@
 												"authentication"].Sections["windowsAuthentication"];
 
 						windowsAuthenticationSection.OverrideModeDefault = "Allow";            
+
+						var basicAuthenticationSection = config.RootSectionGroup.SectionGroups["system.webServer"].SectionGroups["security"].SectionGroups[
+												"authentication"].Sections["basicAuthentication"];
+
+						basicAuthenticationSection.OverrideModeDefault = "Allow";            
 						
 						var anonymousAuthenticationSection = config.RootSectionGroup.SectionGroups["system.webServer"].SectionGroups["security"].SectionGroups[
 												"authentication"].Sections["anonymousAuthentication"];
