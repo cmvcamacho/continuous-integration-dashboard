@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- ============== LocalPath to UNC Path ============== -->
+	<!-- translates a machine name and local path to a UNC path, primarily for the task of copying files -->
+	<!-- Note that this will rely on the calling process having access to $ dollar shares. -->
+	<UsingTask TaskName="LocalPathToUncPath" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+		<ParameterGroup>
+			<MachineName ParameterType="System.String" Required="true"/>
+			<LocalPath ParameterType="System.String" Required="true"/>
+			<UncPath ParameterType="System.String" Required="false" Output="true"/>
+		</ParameterGroup>
+		<Task>
+			<Using Namespace="System"/>
+			<Using Namespace="System.IO"/>
+			<Code Type="Fragment" Language="cs">
+				<![CDATA[
+					string uncPath = this.LocalPath;
+					if (this.MachineName.ToUpper() != "LOCALHOST")
+					{
+						var parts = this.LocalPath.Split(new[]{@":\"}, StringSplitOptions.None);
+						uncPath = string.Format(@"\\{0}\{1}$\{2}",
+							this.MachineName,
+							parts[0],
+							parts[1]);
+						this.Log.LogMessage(string.Format("Generated path to remote machine: {0}", uncPath));
+					}
+					this.UncPath = uncPath;
+					return true;
+				]]>
+			</Code>
+		</Task>
+	</UsingTask>
+
+	<!-- ============== GetDate ============== -->
+	<!-- Gets the current date/time based on a format string -->
+	<UsingTask TaskName="GetDate" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+		<ParameterGroup>
+			<FormatString ParameterType="System.String" Required="true"/>
+			<DateString ParameterType="System.String" Required="false" Output="true"/>
+		</ParameterGroup>
+		<Task>
+			<Using Namespace="System"/>
+			<Using Namespace="System.IO"/>
+			<Code Type="Fragment" Language="cs">
+				<![CDATA[
+					this.Log.LogMessage(string.Format("Getting current date with format string: {0}", this.FormatString));
+					this.DateString = DateTime.Now.ToString(this.FormatString, null);
+					this.Log.LogMessage(string.Format("{0}", this.DateString));
+					return true;
+				]]>
+			</Code>
+		</Task>
+	</UsingTask>
+
+</Project>

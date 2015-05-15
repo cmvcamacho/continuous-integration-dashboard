@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project ToolsVersion="4.0" DefaultTargets="Default" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<!-- MSBuild Extensions -->
+	<Import Project=".\..\MSBuild Extension Pack 4.0.4.0 Binaries\MSBuild.ExtensionPack.tasks"/>
+	<!-- Create website workaround for remote paths.-->
+	<UsingTask TaskName="CreateRemoteSite" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+		<ParameterGroup>
+			<MachineName ParameterType="System.String" Required="true"/>
+			<Name ParameterType="System.String" Required="true"/>
+			<Path ParameterType="System.String" Required="true"/>
+			<Port ParameterType="System.String" Required="true"/>
+			<AppPool ParameterType="System.String" Required="true"/>
+			<SiteId ParameterType="System.String" Required="false" Output="true"/>
+		</ParameterGroup>
+		<Task>
+			<Reference Include="C:\Windows\System32\inetsrv\Microsoft.Web.Administration.dll"/>
+			<Using Namespace="System"/>
+			<Using Namespace="System.IO"/>
+			<Using Namespace="Microsoft.Web.Administration" />
+			<Code Type="Fragment" Language="cs">
+				<![CDATA[
+					string uncSafePath = string.Empty;
+					if (this.MachineName.ToUpper() != "LOCALHOST")
+					{
+						var parts = this.Path.Split(new[]{@":\"}, StringSplitOptions.None);
+						uncSafePath = string.Format(@"\\{0}\{1}$\{2}",
+							this.MachineName,
+							parts[0],
+							parts[1]);
+						this.Log.LogMessage(string.Format("Generated path to remote machine: {0}", uncSafePath));
+					}
+					else
+					{
+						uncSafePath = this.Path;
+					}
+					if (!Directory.Exists(uncSafePath))
+						Directory.CreateDirectory(uncSafePath);
+					using(ServerManager sm = ServerManager.OpenRemote(this.MachineName))
+					{
+						var site = sm.Sites.Add(this.Name, Path, int.Parse(this.Port));
+						site.ApplicationDefaults.ApplicationPoolName =  this.AppPool;
+						this.SiteId = site.Id.ToString();
+										
+						//Update the ApplicationHost.Config to allow the enabling of windows anuthentication in the web.config
+						Configuration config = sm.GetApplicationHostConfiguration();
+						var windowsAuthenticationSection = config.RootSectionGroup.SectionGroups["system.webServer"].SectionGroups["security"].SectionGroups[
+												"authentication"].Sections["windowsAuthentication"];
+
+						windowsAuthenticationSection.OverrideModeDefault = "Allow";            
+						
+						var anonymousAuthenticationSection = config.RootSectionGroup.SectionGroups["system.webServer"].SectionGroups["security"].SectionGroups[
+												"authentication"].Sections["anonymousAuthentication"];
+
+						anonymousAuthenticationSection.OverrideModeDefault = "Allow";
+
+						sm.CommitChanges();
+					}
+					return true;
+				]]>
+			</Code>
+		</Task>
+	</UsingTask>
+	
+	<!-- Create ftp workaround for remote paths.-->
+	<UsingTask TaskName="CreateRemoteFTP" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+		<ParameterGroup>
+			<MachineName ParameterType="System.String" Required="true"/>
+			<Name ParameterType="System.String" Required="true"/>
+			<Path ParameterType="System.String" Required="true"/>
+			<Port ParameterType="System.String" Required="true"/>
+			<FtpUser ParameterType="System.String" Required="true"/>
+			<FtpId ParameterType="System.String" Required="false" Output="true"/>
+		</ParameterGroup>
+		<Task>
+			<Reference Include="C:\Windows\System32\inetsrv\Microsoft.Web.Administration.dll"/>
+			<Using Namespace="System"/>
+			<Using Namespace="System.IO"/>
+			<Using Namespace="Microsoft.Web.Administration" />
+			<Code Type="Fragment" Language="cs">
+				<![CDATA[
+					string uncSafePath = string.Empty;
+					if (this.MachineName.ToUpper() != "LOCALHOST")
+					{
+						var parts = this.Path.Split(new[]{@":\"}, StringSplitOptions.None);
+						uncSafePath = string.Format(@"\\{0}\{1}$\{2}",
+							this.MachineName,
+							parts[0],
+							parts[1]);
+						this.Log.LogMessage(string.Format("Generated path to remote machine: {0}", uncSafePath));
+					}
+					else
+					{
+						uncSafePath = this.Path;
+					}
+					if (!Directory.Exists(uncSafePath))
+						Directory.CreateDirectory(uncSafePath);
+					using(ServerManager sm = ServerManager.OpenRemote(this.MachineName))
+					{
+						var ftpsite = sm.Sites.Add(this.Name, "ftp", "*:"+this.Port+":", Path);
+						this.FtpId = ftpsite.Id.ToString();
+						ftpsite.ServerAutoStart = true;
+
+						ConfigurationElement ssl = ftpsite.GetChildElement("ftpServer").GetChildElement("security").GetChildElement("ssl"); 
+						ssl.SetAttributeValue("controlChannelPolicy", "SslAllow"); 
+						ssl.SetAttributeValue("dataChannelPolicy", "SslAllow");
+
+						ConfigurationElement auth = ftpsite.GetChildElement("ftpServer").GetChildElement("security").GetChildElement("authentication").GetChildElement("basicAuthentication");
+						auth.SetAttributeValue("enabled", true);
+						sm.CommitChanges();
+						
+						Configuration config = sm.GetApplicationHostConfiguration(); 
+						ConfigurationSection authorization = config.GetSection("system.ftpServer/security/authorization", this.Name); 
+						ConfigurationElementCollection authCollection = authorization.GetCollection(); 
+						authCollection.Clear();
+
+						ConfigurationElement addElement = authCollection.CreateElement("add"); 
+						addElement.SetAttributeValue("accessType", "Allow"); 
+						addElement.SetAttributeValue("users", FtpUser); 
+						addElement.SetAttributeValue("permissions", "Read, Write"); 
+						authCollection.Add(addElement);						
+										
+						sm.CommitChanges();
+					}
+					return true;
+				]]>
+			</Code>
+		</Task>
+	</UsingTask>
+	
+	
+	<!-- Custom Properties -->
+	<PropertyGroup>
+		<MachineName>LOCALHOST</MachineName>
+		<SiteName></SiteName>
+		<SitePath></SitePath>
+		<ManagedRuntimeVersion>v4.0</ManagedRuntimeVersion>
+		<AppPoolName>$(SiteName)</AppPoolName>
+		<RecreateAppPool>true</RecreateAppPool>
+		<AppPipelineMode>Integrated</AppPipelineMode>
+		<AppPoolUser>LocalService</AppPoolUser>
+		<AppPoolPass></AppPoolPass>
+		<CertificateStoreName></CertificateStoreName>
+		<CertificateHash></CertificateHash>
+		<HttpsPort>443</HttpsPort>
+		<HttpPort>80</HttpPort>
+	</PropertyGroup>
+	<!-- Diagnostic output of properties, and mandatory checks -->
+	<Target Name="CheckParams" >
+		<Message Text="MachineName=$(MachineName)"/>
+		<Message Text="AppPoolUser=$(AppPoolUser)"/>
+		<Message Text="AppPoolPass=$(AppPoolPass)"/>
+		<Message Text="SiteName=$(SiteName)"/>
+		<Message Text="SitePath=$(SitePath)"/>
+		<Message Text="ManagedRuntimeVersion=$(ManagedRuntimeVersion)"/>
+		<Message Text="AppPoolName=$(AppPoolName)"/>
+		<Message Text="RecreateAppPool=$(RecreateAppPool)"/>
+		<Message Text="CertificateStoreName=$(CertificateStoreName)"/>
+		<Message Text="CertificateHash=$(CertificateHash)"/>
+		<Message Text="HttpsPort=$(HttpsPort)"/>
+		<Error Text ="Not all properties were supplied. (SiteName and SitePath are required)"
+			Condition="$([System.String]::IsNullOrEmpty($(SiteName))) Or $([System.String]::IsNullOrEmpty($(SitePath)))"/>
+	</Target>
+	<!-- Target -->
+	<Target Name="Default">
+		<CallTarget Targets="CheckParams" ContinueOnError="false"/>
+		<!-- Create, or drop and recreate app pool -->
+		<PropertyGroup>
+			<AppPoolExists></AppPoolExists>
+		</PropertyGroup>
+		<Message Text ="Looking for app pool $(AppPoolName) on $(MachineName)" />
+		<MSBuild.ExtensionPack.Web.Iis7AppPool TaskAction="CheckExists" MachineName="$(MachineName)" Name="$(AppPoolName)" >
+			<Output PropertyName="AppPoolExists" TaskParameter="Exists"></Output>
+		</MSBuild.ExtensionPack.Web.Iis7AppPool>
+		<Message Text="App pool $(AppPoolName) exists on $(MachineName); Not recreating" Condition="$(AppPoolExists) And !$(RecreateAppPool)"/>
+		<Message Text="App pool $(AppPoolName) exists on $(MachineName); Recreating"  Condition="$(AppPoolExists) And $(RecreateAppPool)"/>
+		<Message Text="$(AppPoolName) does not exist on $(MachineName); Creating"  Condition="!$(AppPoolExists)"/>
+		<MSBuild.ExtensionPack.Web.Iis7AppPool TaskAction="Delete" MachineName="$(MachineName)" Name="$(AppPoolName)" Condition="$(AppPoolExists) And $(RecreateAppPool)"/>
+		<MSBuild.ExtensionPack.Web.Iis7AppPool TaskAction="Create" MachineName="$(MachineName)" Name="$(AppPoolName)" Condition="!$(AppPoolExists) Or $(RecreateAppPool)"/>
+		<MSBuild.ExtensionPack.Web.Iis7AppPool TaskAction="SetPipelineMode" MachineName="$(MachineName)" Name="$(AppPoolName)" PipelineMode="$(AppPipelineMode)" Condition="!$(AppPoolExists) Or $(RecreateAppPool)"/>
+		
+		<!--set app pool identity-->
+		<MSBuild.ExtensionPack.Web.Iis7AppPool TaskAction="SetIdentity" MachineName="$(MachineName)" Name="$(AppPoolName)" 
+			Condition="(!$(AppPoolExists) Or $(RecreateAppPool)) And $([System.String]::IsNullOrEmpty($(AppPoolPass)))"
+			IdentityType="$(AppPoolUser)" /> 
+		<MSBuild.ExtensionPack.Web.Iis7AppPool TaskAction="SetIdentity" MachineName="$(MachineName)" Name="$(AppPoolName)" 
+			Condition="(!$(AppPoolExists) Or $(RecreateAppPool)) And !$([System.String]::IsNullOrEmpty($(AppPoolPass)))"
+			IdentityType="SpecificUser" PoolIdentity="$(AppPoolUser)" IdentityPassword="$(AppPoolPass)"/> 
+
+		<!-- Set runtime version to 4, and Enable32BitAppOnWin64 to true (project built in x86)-->
+		<MSBuild.ExtensionPack.Web.Iis7AppPool TaskAction="Modify" MachineName="$(MachineName)" Name="$(AppPoolName)" ManagedRuntimeVersion="$(ManagedRuntimeVersion)" Enable32BitAppOnWin64="true" Condition="!$(AppPoolExists) Or $(RecreateAppPool)"/>
+		<!-- Drop and recreate website -->
+		<PropertyGroup>
+			<SiteExists></SiteExists>
+		</PropertyGroup>
+		<MSBuild.ExtensionPack.Web.Iis7Website TaskAction="CheckExists" MachineName="$(MachineName)" Name="$(SiteName)">
+			<Output TaskParameter="Exists" PropertyName="SiteExists"/>
+		</MSBuild.ExtensionPack.Web.Iis7Website>
+		<Message Text="Site $(SiteName) exists on $(MachineName)" Condition="$(SiteExists)" />
+		<MSBuild.ExtensionPack.Web.Iis7Website TaskAction="Delete" MachineName="$(MachineName)" Name="$(SiteName)" Condition="$(SiteExists)"/>
+		<Message Text="Site $(SiteName) does not exist on $(MachineName)" Condition="!$(SiteExists)" />
+		<CreateRemoteSite MachineName="$(MachineName)" Name="$(SiteName)" Path="$(SitePath)" Port="$(HttpPort)" AppPool="$(AppPoolName)" >
+			<Output PropertyName="NewSiteId" TaskParameter="SiteId"/>
+		</CreateRemoteSite>
+		<Message Text="Site created - SiteId: $(NewSiteId)"/>
+		
+		<!-- Remove the default binding -->
+		<MSBuild.ExtensionPack.Web.Iis7Binding TaskAction="Remove" MachineName="$(MachineName)" Name="$(SiteName)" BindingInformation="*:$(HttpPort):" BindingProtocol="http"/>
+		<!-- Add bindings -->
+		<MSBuild.ExtensionPack.Web.Iis7Binding TaskAction="Add" MachineName="$(MachineName)" Name="$(SiteName)" BindingInformation="*:$(HttpPort):$(SiteName)" BindingProtocol="http"/>
+		<MSBuild.ExtensionPack.Web.Iis7Binding Condition="$([System.String]::IsNullOrEmpty($(CertificateStoreName))) And !$([System.String]::IsNullOrEmpty($(CertificateHash)))" 
+			CertificateHash="$(CertificateHash)" 
+			TaskAction="Add" MachineName="$(MachineName)" Name="$(SiteName)" BindingInformation="*:$(HttpsPort):$(SiteName)" BindingProtocol="https"/>
+		<MSBuild.ExtensionPack.Web.Iis7Binding Condition="!$([System.String]::IsNullOrEmpty($(CertificateStoreName))) And !$([System.String]::IsNullOrEmpty($(CertificateHash)))" 
+			CertificateStoreName="$(CertificateStoreName)" CertificateHash="$(CertificateHash)" 
+			TaskAction="Add" MachineName="$(MachineName)" Name="$(SiteName)" BindingInformation="*:$(HttpsPort):$(SiteName)" BindingProtocol="https"/>
+		
+		
+		<Message Text="Site created - SiteId: $(NewSiteId)"/>
+		<!-- Start Sites -->
+		<Message Text="Starting site" />
+		<!-- Occasionally the call to start fails (I suspect it is due to IIS console being open, or confused bindings on port 80 - for instance after recently updating hosts file.
+				Additionally, if the app pool identity does not have rights to the folder (e.g. it is local service) then the site might not start.
+				Also, another website on the server, with a "wildcard" binding to port 80 might cause the site not to start. -->
+
+		<MSBuild.ExtensionPack.Framework.Thread TaskAction="Sleep" Timeout="5000"/>
+		<MSBuild.ExtensionPack.Web.Iis7Website TaskAction="Start" MachineName="$(MachineName)" Name="$(SiteName)" ContinueOnError="true"/>
+	</Target>
+	
+	<!-- Target -->
+	<Target Name="StopSite">
+		<MSBuild.ExtensionPack.Web.Iis7Website TaskAction="Stop" MachineName="$(MachineName)" Name="$(SiteName)" ContinueOnError="true"/>
+	</Target>
+
+	<!-- Target -->
+	<Target Name="StartSite">
+		<MSBuild.ExtensionPack.Web.Iis7Website TaskAction="Start" MachineName="$(MachineName)" Name="$(SiteName)" ContinueOnError="true"/>
+	</Target>
+	
+	<!-- Target -->
+	<Target Name="CreateFTP">
+		<CallTarget Targets="CheckParams" ContinueOnError="false"/>
+		
+		<!-- Drop and recreate website -->
+		<PropertyGroup>
+			<SiteExists></SiteExists>
+		</PropertyGroup>
+		<MSBuild.ExtensionPack.Web.Iis7Website TaskAction="CheckExists" MachineName="$(MachineName)" Name="$(SiteName)">
+			<Output TaskParameter="Exists" PropertyName="SiteExists"/>
+		</MSBuild.ExtensionPack.Web.Iis7Website>
+		<Message Text="Site $(SiteName) exists on $(MachineName)" Condition="$(SiteExists)" />
+		<MSBuild.ExtensionPack.Web.Iis7Website TaskAction="Delete" MachineName="$(MachineName)" Name="$(SiteName)" Condition="$(SiteExists)"/>
+		<Message Text="Site $(SiteName) does not exist on $(MachineName)" Condition="!$(SiteExists)" />
+		<!-- The Create action is NOT properly supported for remote execution, despite the documentation, Workaround provided.
+		<MSBuild.ExtensionPack.Web.Iis7Website TaskAction="Create" MachineName="$(MachineName)" Name="$(SiteName)" Path="$(SitePath)" Port="80" Force="true" AppPool="$(AppPoolName)" >
+			<Output TaskParameter="SiteId" PropertyName="NewSiteId"/>
+		</MSBuild.ExtensionPack.Web.Iis7Website> -->
+		<CreateRemoteFTP MachineName="$(MachineName)" Name="$(SiteName)" Path="$(SitePath)" Port="$(FtpPort)" FtpUser="$(FtpUser)" >
+			<Output PropertyName="NewSiteId" TaskParameter="FtpId"/>
+		</CreateRemoteFTP>
+		<Message Text="FTP created - SiteId: $(NewSiteId)"/>
+	</Target>
+	
+</Project>
+

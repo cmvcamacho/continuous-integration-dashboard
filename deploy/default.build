@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project ToolsVersion="4.0" DefaultTargets="Default" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	
+	<PropertyGroup>
+		<Environment>local</Environment>
+		<Tools>.\Tools</Tools>
+		<SqlCmdFullPath>$(Tools)\SqlCmd\SQLCMD.EXE</SqlCmdFullPath>
+		<SqlCmdFullPath Condition="'$(PROCESSOR_ARCHITECTURE)'=='x86'">$(Tools)\SqlCmd-Win32\SQLCMD.EXE</SqlCmdFullPath>
+		<SourceDirectory>$(MSBuildProjectDirectory)\..\src\CIDashboard.Web\</SourceDirectory>
+	</PropertyGroup>
+	
+	<Import Condition="exists('$(Environment)')" 
+			Project="$(Environment)"/>
+	<Import Condition="exists('$(MSBuildProjectDirectory)\$(Environment)')" 
+			Project="$(MSBuildProjectDirectory)\$(Environment)"/>
+	<Import Condition="exists('$(MSBuildProjectDirectory)\config\$(Environment)')" 
+			Project="$(MSBuildProjectDirectory)\config\$(Environment)"/>
+	<Import Condition="exists('$(MSBuildProjectDirectory)\config\$(Environment).properties')" 
+			Project="$(MSBuildProjectDirectory)\config\$(Environment).properties"/>
+	
+	<Import Project="$(Tools)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets"/>
+	<Import Project="$(Tools)\MSBuild Extension Pack 4.0.4.0 Binaries\MSBuild.ExtensionPack.tasks"/>
+    <Import Project="$(Tools)\MSBuild Extension Pack 4.0.4.0 Binaries\MSBuild.ExtensionPack.VersionNumber.targets"/>
+	<Import Project="$(Tools)\MSBuildGlobalFiles\MSBuild.Utils.tasks"/>
+	
+	<Target Name="Install">
+		<CallTarget Targets="ManageDatabase" ContinueOnError="false"/>
+		<CallTarget Targets="ManageHosts" Condition="'$(Environment)'=='local'"  ContinueOnError="false"/>		
+		<CallTarget Targets="StopSite" ContinueOnError="false"/>
+		<CallTarget Targets="ManageIIS" ContinueOnError="false" />
+		<CallTarget Targets="DeployFiles" ContinueOnError="false" />
+		<CallTarget Targets="ConfigureForEnvironment" ContinueOnError="false" />
+	</Target>
+
+	<Target Name="ManageDatabase">
+		<PropertyGroup>
+			<ScriptFile>$(MSBuildProjectDirectory)\scripts\bootstrap.sql</ScriptFile>
+			<CopiedScriptFile>$(MSBuildProjectDirectory)\scripts\bootstrap_copy.sql</CopiedScriptFile>
+			
+			<ServiceUser>$(AppPoolUser)</ServiceUser>
+			<ServiceUser Condition="'$(AppPoolUser)'==''">NT AUTHORITY\LOCAL SERVICE</ServiceUser>
+		</PropertyGroup>
+
+		<ItemGroup>
+			<ScriptSourceFiles Include="$(ScriptFile)" />
+		</ItemGroup>		
+		<Copy SourceFiles="@(ScriptSourceFiles)" DestinationFiles="$(CopiedScriptFile)" />
+
+		
+		<Message Text="Going to replace #{ServiceUser} using $(ServiceUser)"/>
+		<FileUpdate Files="$(CopiedScriptFile)"
+			Regex="#{ServiceUser}"
+			ReplacementText="$(ServiceUser)" />
+		<Message Text="Going to replace #{DatabaseName} using $(DatabaseName)"/>
+		<FileUpdate Files="$(CopiedScriptFile)"
+			Regex="#{DatabaseName}"
+			ReplacementText="$(DatabaseName)" />
+			
+		<Exec Command='$(SqlCmdFullPath) -b -S $(DbServer) -i "$(CopiedScriptFile)"'/>
+		<Delete Files="$(CopiedScriptFile)" />
+	</Target>
+
+	<Target Name ="ManageHosts">
+		<MSBuild.ExtensionPack.Computer.HostsFile TaskAction="SetHostEntry"
+				HostName="$(SiteName)"
+				IPAddress="127.0.0.1"
+				Comment="Local Website for CI Dashboard" />
+	</Target>
+	
+	<Target Name="StopSite">
+		<MSBuild Projects="$(Tools)\MSBuildGlobalFiles\ManageWebsite.targets" Targets="StopSite"
+				 Properties="MachineName=$(WebServerMachine);SiteName=$(SiteName);" />
+	</Target>
+
+	<Target Name="StartSite">
+		<MSBuild Projects="$(Tools)\MSBuildGlobalFiles\ManageWebsite.targets" Targets="StartSite"
+				 Properties="MachineName=$(WebServerMachine);SiteName=$(SiteName);" />
+	</Target>
+	
+	<Target Name="ManageIIS">
+		<Message Text="*** SitePath=$(WebServerInstallDir)\$(SiteNamePath) ***"/>
+		<MSBuild Projects="$(Tools)\MSBuildGlobalFiles\ManageWebsite.targets" Targets="Default"
+				 Properties="MachineName=$(WebServerMachine);SiteName=$(SiteName);SitePath=$(WebServerInstallDir)\$(SiteNamePath);RecreateAppPool=$(RecreateAppPools);AppPoolUser=$(AppPoolUser);AppPoolPass=$(AppPoolPass);HttpPort=$(HttpPort)" />
+	</Target>
+
+	<Target Name="DeployFiles">
+		<PropertyGroup>
+			<UncPath></UncPath>
+		</PropertyGroup>
+		<LocalPathToUncPath MachineName="$(WebServerMachine)" LocalPath="$(WebServerInstallDir)\$(SiteNamePath)">
+			<Output PropertyName="UncPath" TaskParameter="UncPath"/>
+		</LocalPathToUncPath>
+		<RemoveDir Directories="$(UncPath)" ContinueOnError="true" />
+
+		<MSBuild Projects="$(MSBuildProjectDirectory)\..\ContinuousIntegrationDashboard.sln" 
+			Targets="Clean;Rebuild"
+			Properties="Configuration=Release;Platform=Any CPU;" 
+			/>
+
+		<ItemGroup>
+			<SourceFiles Include="$(SourceDirectory)\**\*.*;" 
+						Exclude="$(SourceDirectory)\**\App_data\*.*;$(SourceDirectory)\**\*.cs;$(SourceDirectory)\obj\**\*.*"/>
+		</ItemGroup>
+		<Copy SourceFiles="@(SourceFiles)" DestinationFiles="@(SourceFiles->'$(UncPath)\%(RecursiveDir)%(Filename)%(Extension)')" />
+	</Target>
+	
+	<Target Name="ConfigureForEnvironment">
+		<PropertyGroup>
+			<UncPath></UncPath>
+		</PropertyGroup>
+		<LocalPathToUncPath MachineName="$(WebServerMachine)" LocalPath="$(WebServerInstallDir)\$(SiteNamePath)">
+			<Output PropertyName="UncPath" TaskParameter="UncPath"/>
+		</LocalPathToUncPath>
+
+		<!-- set security authentication permissions -->
+		<Message Text="security authentication permissions for basic authentication = $(basicAuthentication)"/>
+		<Message Text="security authentication permissions for windows authentication = $(windowsAuthentication)"/>
+		<Message Text="security authentication permissions for anonymous authentication = $(anonymousAuthentication)"/>
+		<MSBuild.ExtensionPack.Xml.XmlFile
+			  TaskAction="AddElement"
+			  File="$(UncPath)\Web.config"
+			  XPath="//configuration/system.webServer"
+			  Element="security" />
+		<MSBuild.ExtensionPack.Xml.XmlFile
+			  TaskAction="AddElement"
+			  File="$(UncPath)\Web.config"
+			  XPath="//configuration/system.webServer/security"
+			  Element="authentication" />
+		<MSBuild.ExtensionPack.Xml.XmlFile
+			  TaskAction="AddElement"
+			  File="$(UncPath)\Web.config"
+			  XPath="//configuration/system.webServer/security/authentication"
+			  Element="basicAuthentication"
+			  Key="enabled"
+			  Value="$(basicAuthentication)" />
+		<MSBuild.ExtensionPack.Xml.XmlFile
+			  TaskAction="AddElement"
+			  File="$(UncPath)\Web.config"
+			  XPath="//configuration/system.webServer/security/authentication"
+			  Element="windowsAuthentication"
+			  Key="enabled"
+			  Value="$(windowsAuthentication)" />
+	  <MSBuild.ExtensionPack.Xml.XmlFile
+			  TaskAction="AddElement"
+			  File="$(UncPath)\Web.config"
+			  XPath="//configuration/system.webServer/security/authentication"
+			  Element="anonymousAuthentication"
+			  Key="enabled"
+			  Value="$(anonymousAuthentication)" />
+			  
+		<!-- ConnectionStrings /-->
+		<Message Text="CiDashboardContext=$(CiDashboardContext)"/>
+		<XmlPoke
+			XmlInputPath="$(UncPath)\Web.config"
+			Query="configuration/connectionStrings/add[@name='CiDashboardContext']/@connectionString"
+			Value="$(CiDashboardContext)"/>
+		
+		<!-- log -->
+		<Message Text="LogFilePath=$(LogFilePath)"/>
+		<XmlPoke
+			XmlInputPath="$(UncPath)\Web.config"
+			Query="//configuration/appSettings/add[@key='serilog:write-to:RollingFile.pathFormat']/@value"
+			Value="$(LogFilePath)"/>
+
+		<!-- Teamcity -->
+		<Message Text="TeamcityHostname=$(TeamcityHostname)"/>
+		<XmlPoke
+			XmlInputPath="$(UncPath)\Web.config"
+			Query="/configuration/appSettings/add[@key='TeamcityHostname']/@value"
+			Value="$(TeamcityHostname)"/>
+		
+		<Message Text="TeamcityUseSsl=$(TeamcityUseSsl)"/>
+		<XmlPoke
+			XmlInputPath="$(UncPath)\Web.config"
+			Query="/configuration/appSettings/add[@key='TeamcityUseSsl']/@value"
+			Value="$(TeamcityUseSsl)"/>
+		
+		<Message Text="TeamcityUsername=$(TeamcityUsername)"/>
+		<XmlPoke
+			XmlInputPath="$(UncPath)\Web.config"
+			Query="/configuration/appSettings/add[@key='TeamcityUsername']/@value"
+			Value="$(TeamcityUsername)"/>
+		
+		<Message Text="OriginalNetworkInfoCacheTimeout=$(TeamcityPassword)"/>
+		<XmlPoke
+			XmlInputPath="$(UncPath)\Web.config"
+			Query="/configuration/appSettings/add[@key='TeamcityPassword']/@value"
+			Value="$(TeamcityPassword)"/>
+			
+		<!-- other -->
+		<Message Text="RefreshInfoCron=$(RefreshInfoCron)"/>
+		<XmlPoke
+			XmlInputPath="$(UncPath)\Web.config"
+			Query="configuration/appSettings/add[@key='RefreshInfoCron']/@value"
+			Value="$(RefreshInfoCron)"/>		
+	</Target>
+	
+</Project>

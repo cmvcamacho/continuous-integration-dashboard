@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- ============== Framework ============== -->
+    <UsingTask AssemblyFile="$(ExtensionTasksPath)Truphone.MSBuild.ExtensionPack.dll" TaskName="Truphone.MSBuild.ExtensionPack.Computer.Registry"/>
+	<UsingTask AssemblyFile="$(ExtensionTasksPath)Truphone.MSBuild.ExtensionPack.dll" TaskName="Truphone.MSBuild.ExtensionPack.SqlServer.SqlVersionedExecute"/>
+</Project>

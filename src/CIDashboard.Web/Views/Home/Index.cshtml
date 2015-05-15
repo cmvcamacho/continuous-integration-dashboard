@@ -5,4 +5,7 @@
     <div data-ng-repeat="project in projects">
         <project></project>
     </div>
+    <div class="jumbotron alert alert-info noProjects" ng-show="projects.length <= 0 && !loading">
+        Please customize your projects list using the&nbsp;&nbsp;<span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>&nbsp;&nbsp;edit mode button.
+    </div>
 </div>
