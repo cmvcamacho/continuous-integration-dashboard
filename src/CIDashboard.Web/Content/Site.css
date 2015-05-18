@@ -50,10 +50,11 @@
 }
 .builds li .panel .header {
     font-weight: bold;
+    color: white;
 }
 
-.builds li .panel .header {
-    font-weight: bold;
+.builds li .panel .header .editBuildBtn {
+    color: white;
 }
 
 .builds li .panel {
@@ -118,6 +119,11 @@
     width: 600px;
     overflow-y: auto;
     height: 250px;
+    font-weight: normal;
+}
+
+.buildSelector ul li heaa {
+  cursor: pointer;
 }
 
 .buildSelector input {
@@ -127,14 +133,21 @@
     -webkit-min-width: 90%;
     min-width: 90%;
     width: 90%;
-    padding: 0;
+    padding: 0 0 0 5px;
     height: 21px;
     margin: 2px 0 0 2px;
     font-size: 12px;
+    font-weight: normal;
 }
 
 .buildSelector .typeahead-group-header {
-    color: black;
+    color: gray;
+    font-weight: normal;
+}
+
+.selectedBuild {
+    color: #ffffff !important;
+    background-color: #7faf7f;
 }
 
 /* loading */

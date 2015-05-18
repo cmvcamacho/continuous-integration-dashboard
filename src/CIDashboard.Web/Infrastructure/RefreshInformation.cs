@@ -41,7 +41,7 @@ namespace CIDashboard.Web.Infrastructure
                     ? this.ConnectionsManager.BuildsToBeRefreshed.Keys
                     : this.ConnectionsManager.BuildsPerConnId[connectionId];
                 var buildsToRetrieve = buildsToRefresh
-                    .Select(buildId => this.GetLastBuildResult(hubContext, buildId))
+                    .Select(buildId => this.GetLastBuildResult(hubContext, connectionId, buildId))
                     .ToList();
 
                 await Task.WhenAll(buildsToRetrieve);
@@ -59,22 +59,23 @@ namespace CIDashboard.Web.Infrastructure
             this.SendRefreshBuildResults(null).Wait();
         }
 
-        private async Task GetLastBuildResult(IHubContext hubContext, string buildId)
+        private async Task GetLastBuildResult(IHubContext hubContext, string connectionId, string buildId)
         {
             try
             {
                 var lastBuildResult = await this.InfoQuery.GetLastBuildResult(buildId);
 
-                var connIds = this.ConnectionsManager.BuildsPerConnId.Where(b => b.Value.Contains(lastBuildResult.CiExternalId))
-                    .Select(d => d.Key);
+                var connIds = string.IsNullOrEmpty(connectionId)
+                    ? this.ConnectionsManager.BuildsPerConnId.Where(b => b.Value.Contains(lastBuildResult.CiExternalId)).Select(d => d.Key)
+                    : new List<string> { connectionId };
 
-                foreach (var connectionId in connIds)
+                foreach (var connId in connIds)
                 {
                     Logger.Debug(
                         "Sending build result for {buildId} to {connectionId}",
                         lastBuildResult.CiExternalId,
-                        connectionId);
-                    hubContext.Clients.Client(connectionId)
+                        connId);
+                    hubContext.Clients.Client(connId)
                         .SendBuildResult(lastBuildResult);
                 }
             }

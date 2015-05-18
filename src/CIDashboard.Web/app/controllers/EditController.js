@@ -3,7 +3,7 @@
 
     var app = angular.module('controllers')
         .controller('EditController', [
-            '$scope', 'editService', 'filterFilter', '$rootScope', function ($scope, $editService, filterFilter, $rootScope) {
+            '$scope', 'editService', 'filterFilter', '$timeout', '$rootScope', function ($scope, $editService, filterFilter, $timeout, $rootScope) {
                 $editService.initialize();
 
                 $scope.refreshing = false;
@@ -72,13 +72,15 @@
 
                 //get list of selectabled builds
                 $scope.getBuildsToShow = function (search) {
-                    var filtered = filterFilter($scope.selectableBuilds, search);
+                    var filtered = filterFilter($scope.selectableBuilds, search.viewValue);
 
                     var results = _(filtered)
                       .groupBy('ProjectName')
                       .map(function (g) {
-                          g[0].firstInGroup = true;  // the first item in each group
-                          return g;
+                            g[0].firstInGroup = true;  // the first item in each group
+                            for (var i = 0; i < g.length; i++)
+                                g[i].BuildCiExternalId = search.ciExternalId;
+                            return g;
                       })
                       .flatten()
                       .value();
@@ -163,13 +165,13 @@
                         build.Url = null;
                         build.NumberTestPassed = 0;
                         build.NumberTestFailed = 0;
+                        build.editThisBuild = false;
 
                         $editService.updateBuildNameAndExternalId(buildId, $item.Name, $item.CiExternalId);
                     }
                 };
 
-
-                var startRefresh = function() {
+                var startRefresh = function () {
                     $editService.requestRefresh();
                 }
 
