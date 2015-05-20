@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using CIDashboard.Data.Interfaces;
 using CIDashboard.Domain.Services;
-using CIDashboard.Web.Infrastructure.Interfaces;
+using CIDashboard.Web.Application.Interfaces;
 using CIDashboard.Web.Models;
 using Serilog;
 
-namespace CIDashboard.Web.Infrastructure
+namespace CIDashboard.Web.Application
 {
     public class ConnectionsManager : IConnectionsManager
     {

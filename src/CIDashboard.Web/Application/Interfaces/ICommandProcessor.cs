@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using CIDashboard.Web.Models;
 
-namespace CIDashboard.Web.Infrastructure.Interfaces
+namespace CIDashboard.Web.Application.Interfaces
 {
     public interface ICommandProcessor 
     {

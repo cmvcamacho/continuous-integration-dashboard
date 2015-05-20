@@ -195,12 +195,12 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Hubs\ICiDashboardHub.cs" />
-    <Compile Include="Infrastructure\CommandProcessor.cs" />
-    <Compile Include="Infrastructure\InformationQuery.cs" />
-    <Compile Include="Infrastructure\Interfaces\ICommandProcessor.cs" />
-    <Compile Include="Infrastructure\Interfaces\IRefreshInformation.cs" />
-    <Compile Include="Infrastructure\Interfaces\IInformationQuery.cs" />
-    <Compile Include="Infrastructure\RefreshInformation.cs" />
+    <Compile Include="Application\CommandProcessor.cs" />
+    <Compile Include="Application\InformationQuery.cs" />
+    <Compile Include="Application\Interfaces\ICommandProcessor.cs" />
+    <Compile Include="Application\Interfaces\IRefreshInformation.cs" />
+    <Compile Include="Application\Interfaces\IInformationQuery.cs" />
+    <Compile Include="Application\RefreshInformation.cs" />
     <Compile Include="MappingProfiles\ViewModelProfilers.cs" />
     <Compile Include="CompositionRoot\WebModule.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -208,8 +208,8 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\CiDashboardHub.cs" />
-    <Compile Include="Infrastructure\Interfaces\IConnectionsManager.cs" />
-    <Compile Include="Infrastructure\ConnectionsManager.cs" />
+    <Compile Include="Application\Interfaces\IConnectionsManager.cs" />
+    <Compile Include="Application\ConnectionsManager.cs" />
     <Compile Include="Models\BuildConfig.cs" />
     <Compile Include="Models\Build.cs" />
     <Compile Include="Models\CiSource.cs" />

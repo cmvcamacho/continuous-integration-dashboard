@@ -180,10 +180,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Hubs\CiDashboardHubTests.cs" />
-    <Compile Include="Infrastructure\CommandProcessorTests.cs" />
-    <Compile Include="Infrastructure\ConnectionsManagerTests.cs" />
-    <Compile Include="Infrastructure\InformationQueryTests.cs" />
-    <Compile Include="Infrastructure\RefreshInformationTests.cs" />
+    <Compile Include="Application\CommandProcessorTests.cs" />
+    <Compile Include="Application\ConnectionsManagerTests.cs" />
+    <Compile Include="Application\InformationQueryTests.cs" />
+    <Compile Include="Application\RefreshInformationTests.cs" />
     <Compile Include="LocalAddin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

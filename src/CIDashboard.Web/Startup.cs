@@ -8,10 +8,9 @@ using CIDashboard.Data.CompositionRoot;
 using CIDashboard.Data.Interfaces;
 using CIDashboard.Domain.CompositionRoot;
 using CIDashboard.Domain.MappingProfiles;
+using CIDashboard.Web.Application.Interfaces;
 using CIDashboard.Web.CompositionRoot;
 using CIDashboard.Web.Hubs;
-using CIDashboard.Web.Infrastructure;
-using CIDashboard.Web.Infrastructure.Interfaces;
 using CIDashboard.Web.MappingProfiles;
 using Hangfire;
 using Hangfire.SqlServer;
@@ -81,15 +80,12 @@ namespace CIDashboard.Web
 
         private void ConfigureHangfireJobs(IAppBuilder app, IContainer container)
         {
-            app.UseHangfire(configHangfire =>
-            {
-                configHangfire.UseAutofacActivator(container);
-                configHangfire.UseSqlServerStorage(
-                    "CiDashboardContext",
-                    new SqlServerStorageOptions { QueuePollInterval = TimeSpan.FromSeconds(5) });
-                configHangfire.UseServer();
-            });
-
+            GlobalConfiguration.Configuration.UseAutofacActivator(container);
+            GlobalConfiguration.Configuration.UseSqlServerStorage(
+                "CiDashboardContext",
+                new SqlServerStorageOptions { QueuePollInterval = TimeSpan.FromSeconds(5) });
+            app.UseHangfireServer();
+            
             var refreshInfoCron = ConfigurationManager.AppSettings["RefreshInfoCron"];
             if(string.IsNullOrEmpty(refreshInfoCron))
                 refreshInfoCron = "*/5 * * * *";

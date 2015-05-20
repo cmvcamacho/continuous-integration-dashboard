@@ -6,7 +6,7 @@ using CIDashboard.Data.Entities;
 using CIDashboard.Data.Interfaces;
 using CIDashboard.Domain.Entities;
 using CIDashboard.Domain.Services;
-using CIDashboard.Web.Infrastructure;
+using CIDashboard.Web.Application;
 using CIDashboard.Web.MappingProfiles;
 using FakeItEasy;
 using FluentAssertions;
@@ -14,7 +14,7 @@ using NUnit.Framework;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoFakeItEasy;
 
-namespace CIDashboard.Web.Tests.Infrastructure
+namespace CIDashboard.Web.Tests.Application
 {
     [TestFixture]
     public class InformationQueryTests

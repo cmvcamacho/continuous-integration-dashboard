@@ -1,14 +1,14 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using CIDashboard.Web.Infrastructure;
+using CIDashboard.Web.Application;
 using CIDashboard.Web.MappingProfiles;
 using FluentAssertions;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoFakeItEasy;
 
-namespace CIDashboard.Web.Tests.Infrastructure
+namespace CIDashboard.Web.Tests.Application
 {
     [TestFixture]
     public class ConnectionsManagerTests

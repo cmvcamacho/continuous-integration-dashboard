@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CIDashboard.Web.Hubs;
-using CIDashboard.Web.Infrastructure.Interfaces;
+using CIDashboard.Web.Application.Interfaces;
 using CIDashboard.Web.Models;
 using Microsoft.AspNet.SignalR;
 using Serilog;
 
-namespace CIDashboard.Web.Infrastructure
+namespace CIDashboard.Web.Application
 {
     public class RefreshInformation : IRefreshInformation
     {

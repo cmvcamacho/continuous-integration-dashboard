@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace CIDashboard.Web.Infrastructure.Interfaces
+namespace CIDashboard.Web.Application.Interfaces
 {
     public interface IRefreshInformation
     {

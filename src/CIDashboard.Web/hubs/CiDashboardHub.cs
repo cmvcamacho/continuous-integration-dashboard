@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CIDashboard.Web.Infrastructure.Interfaces;
+using CIDashboard.Web.Application.Interfaces;
 using CIDashboard.Web.Models;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;

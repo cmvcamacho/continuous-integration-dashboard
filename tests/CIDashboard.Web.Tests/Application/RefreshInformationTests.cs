@@ -4,15 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using CIDashboard.Data.Entities;
-using CIDashboard.Web.Infrastructure;
-using CIDashboard.Web.Infrastructure.Interfaces;
+using CIDashboard.Web.Application;
+using CIDashboard.Web.Application.Interfaces;
 using CIDashboard.Web.MappingProfiles;
 using FakeItEasy;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoFakeItEasy;
 
-namespace CIDashboard.Web.Tests.Infrastructure
+namespace CIDashboard.Web.Tests.Application
 {
     [TestFixture]
     public class RefreshInformationTests

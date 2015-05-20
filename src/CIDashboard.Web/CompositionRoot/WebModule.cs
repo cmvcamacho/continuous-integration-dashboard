@@ -1,6 +1,6 @@
 ﻿using Autofac;
-using CIDashboard.Web.Infrastructure;
-using CIDashboard.Web.Infrastructure.Interfaces;
+using CIDashboard.Web.Application;
+using CIDashboard.Web.Application.Interfaces;
 using Hangfire;
 
 namespace CIDashboard.Web.CompositionRoot
