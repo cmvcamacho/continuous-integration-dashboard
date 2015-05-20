@@ -58,6 +58,7 @@ namespace CIDashboard.Web
 
             GlobalHost.DependencyResolver = config.Resolver;
 
+            // TODO: remove this from here... this project should not have EF dependecy...
             // force DB creation if it does not exists
             using (var ctx = container.Resolve<ICiDashboardContextFactory>().Create())
             {
@@ -98,7 +99,7 @@ namespace CIDashboard.Web
         private void ConfigureLog()
         {
             Log.Logger = new LoggerConfiguration()
-                .ReadAppSettings()
+                .ReadFrom.AppSettings()
                 .CreateLogger();
         }
     }

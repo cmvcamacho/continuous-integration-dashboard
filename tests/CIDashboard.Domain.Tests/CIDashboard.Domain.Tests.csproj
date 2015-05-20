@@ -61,27 +61,27 @@
     </Reference>
     <Reference Include="nunit.core.interfaces, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\AutoFixture.NUnit2.3.24.3\lib\net40\nunit.core.interfaces.dll</HintPath>
+      <HintPath>..\..\packages\AutoFixture.NUnit2.3.30.4\lib\net40\nunit.core.interfaces.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Ploeh.AutoFixture, Version=3.24.3.0, Culture=neutral, PublicKeyToken=b24654c590009d4f, processorArchitecture=MSIL">
+    <Reference Include="Ploeh.AutoFixture, Version=3.30.5.0, Culture=neutral, PublicKeyToken=b24654c590009d4f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\AutoFixture.3.24.3\lib\net40\Ploeh.AutoFixture.dll</HintPath>
+      <HintPath>..\..\packages\AutoFixture.3.30.5\lib\net40\Ploeh.AutoFixture.dll</HintPath>
     </Reference>
-    <Reference Include="Ploeh.AutoFixture.AutoFakeItEasy, Version=3.24.3.0, Culture=neutral, PublicKeyToken=b24654c590009d4f, processorArchitecture=MSIL">
+    <Reference Include="Ploeh.AutoFixture.AutoFakeItEasy, Version=3.30.4.0, Culture=neutral, PublicKeyToken=b24654c590009d4f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\AutoFixture.AutoFakeItEasy.3.24.3\lib\net40\Ploeh.AutoFixture.AutoFakeItEasy.dll</HintPath>
+      <HintPath>..\..\packages\AutoFixture.AutoFakeItEasy.3.30.4\lib\net40\Ploeh.AutoFixture.AutoFakeItEasy.dll</HintPath>
     </Reference>
-    <Reference Include="Ploeh.AutoFixture.NUnit2, Version=3.24.3.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Ploeh.AutoFixture.NUnit2, Version=3.30.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\AutoFixture.NUnit2.3.24.3\lib\net40\Ploeh.AutoFixture.NUnit2.dll</HintPath>
+      <HintPath>..\..\packages\AutoFixture.NUnit2.3.30.4\lib\net40\Ploeh.AutoFixture.NUnit2.dll</HintPath>
     </Reference>
-    <Reference Include="Ploeh.AutoFixture.NUnit2.Addins, Version=3.24.3.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Ploeh.AutoFixture.NUnit2.Addins, Version=3.30.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\AutoFixture.NUnit2.3.24.3\lib\net40\Ploeh.AutoFixture.NUnit2.Addins.dll</HintPath>
+      <HintPath>..\..\packages\AutoFixture.NUnit2.3.30.4\lib\net40\Ploeh.AutoFixture.NUnit2.Addins.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
