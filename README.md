@@ -10,12 +10,14 @@ The installation scripts allow you to install this in your local machine or on r
 * Local machine
 	1. Compile solution with VS2013 and run it (it will use LocalDB and IISExpress)
 	1. Install it locally
+		* Compile solution with VS2013
 		* Configure installation properties file ".\deploy\config\local.properties"  
 		* Open a Command Prompt with Administrator rights and run the command ".\deploy\Install.bat local"
 		* The 'local' keyword maps to the file ".\deploy\config\local.properties"
 		* This will use local IIS and SQL Server
 
 * Remote machine
+	* Compile solution with VS2013
 	* Configure installation properties file ".\deploy\config\remote.properties"
 	* Open a Command Prompt with Administrator rights and run the command ".\deploy\Install.bat remote"
 	* The 'local' keyword maps to the file ".\deploy\config\remote.properties"
