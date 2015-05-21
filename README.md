@@ -2,7 +2,11 @@
 
 Dashboard to display build information from TeamCity (and other CI's). Each authenticated user can create his own dashboard view, aggregating Builds in project panels.
 
-TODO: add screenshoots
+###### Dashboard
+![dashboard](/screenshoots/dashboard.png)
+
+###### Dashboard in edit mode
+![dashboard in edit mode](/screenshoots/editmode.png)
 
 ## Installation
 
