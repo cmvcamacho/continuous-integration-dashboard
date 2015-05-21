@@ -2,7 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/wv8g82g3xkhfa56d?svg=true)](https://ci.appveyor.com/project/cmvcamacho/continuous-integration-dashboard)
 
-Dashboard to display build information from TeamCity (and other CI's). Each authenticated user can create his own dashboard view, aggregating Builds in project panels.
+A dashboard to display build information from TeamCity (and other CI's). Each authenticated user can create his own customized view, aggregating build results in project panels for easier visualization.
 
 ###### Dashboard
 ![dashboard](/screenshoots/dashboard.png)
@@ -54,7 +54,7 @@ The dashboard contains the following features:
 4. Push to the branch: `git push origin my-new-feature`
 5. Submit a pull request :D
 
-## Technology and Dependencies
+## Technology
 
 This project is built using the following stack:
 * AngularJS
@@ -62,8 +62,8 @@ This project is built using the following stack:
 * Toastr
 * Microsoft MVC
 * Microsoft SignalR
+* Microsoft Entity Framework
 * Hangfire (to refresh build in the background every 5 minutes)
-* EntityFramework
 * Autofac
 * AutoMapper
 * Serilog
