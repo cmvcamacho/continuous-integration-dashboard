@@ -8,6 +8,11 @@ namespace CIDashboard.Data.CompositionRoot
         protected override void Load(ContainerBuilder builder)
         {
             builder
+                .RegisterType<CiDashboardContextBootstrap>()
+                .As<ICiDashboardContextBootstrap>()
+                .InstancePerLifetimeScope();
+
+            builder
                 .RegisterType<CiDashboardContextFactory>()
                 .As<ICiDashboardContextFactory>()
                 .InstancePerLifetimeScope();

@@ -58,12 +58,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CiDashboardContextBootstrap.cs" />
     <Compile Include="CiDashboardContext.cs" />
     <Compile Include="CiDashboardContextFactory.cs" />
     <Compile Include="CiDashboardService.cs" />
     <Compile Include="CompositionRoot\DataModule.cs" />
     <Compile Include="Entities\Project.cs" />
     <Compile Include="Entities\BuildConfig.cs" />
+    <Compile Include="Interfaces\ICiDashboardContextBootstrap.cs" />
     <Compile Include="Interfaces\ICiDashboardContextFactory.cs" />
     <Compile Include="Interfaces\ICiDashboardContext.cs" />
     <Compile Include="Interfaces\ICiDashboardService.cs" />

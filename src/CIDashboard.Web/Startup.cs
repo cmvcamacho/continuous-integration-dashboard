@@ -57,12 +57,8 @@ namespace CIDashboard.Web
 
             GlobalHost.DependencyResolver = config.Resolver;
 
-            // TODO: remove this from here... this project should not have EF dependecy...
             // force DB creation if it does not exists
-            using (var ctx = container.Resolve<ICiDashboardContextFactory>().Create())
-            {
-                ctx.Projects.FirstOrDefault();
-            } 
+            container.Resolve<ICiDashboardContextBootstrap>().InitiateDatabase();
 
             ConfigureHangfireJobs(app, container);
 

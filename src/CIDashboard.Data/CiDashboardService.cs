@@ -23,17 +23,21 @@ namespace CIDashboard.Data
             }
         }
 
-        public async Task<Project> AddProject(string username, Project project)
+        public Task<Project> AddProject(string username, Project project)
         {
-            using (var context = CtxFactory.Create())
-            {
-                project.User = username;
-                context.Projects.Add(project);
+            return Task.Run(
+                () =>
+                {
+                    using(var context = CtxFactory.Create())
+                    {
+                        project.User = username;
+                        context.Projects.Add(project);
 
-                context.SaveChanges();
-            }
+                        context.SaveChanges();
+                    }
 
-            return project;
+                    return project;
+                });
         }
 
         public async Task<bool> UpdateProjectName(int projectId, string projectName)

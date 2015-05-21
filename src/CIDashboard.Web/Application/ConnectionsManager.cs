@@ -59,66 +59,82 @@ namespace CIDashboard.Web.Application
                 });
         }
 
-        public async Task UpdateBuildConfigs(string connectionId, IEnumerable<BuildConfig> buildsConfigs)
+        public Task UpdateBuildConfigs(string connectionId, IEnumerable<BuildConfig> buildsConfigs)
         {
-            var buildCiIds = buildsConfigs
-                    .Where(b => !string.IsNullOrEmpty(b.CiExternalId) && !b.CiExternalId.StartsWith("-"))
-                    .Select(b => b.CiExternalId)
-                    .ToList()
-                .ToList();
-
-            Parallel.ForEach(buildCiIds,
-                build =>
+            return Task.Run(
+                () =>
                 {
-                    if (BuildsPerConnId.ContainsKey(connectionId) && !BuildsPerConnId[connectionId].Contains(build))
-                        BuildsPerConnId[connectionId].Add(build);
-                });
+                    var buildCiIds = buildsConfigs
+                        .Where(b => !string.IsNullOrEmpty(b.CiExternalId) && !b.CiExternalId.StartsWith("-"))
+                        .Select(b => b.CiExternalId)
+                        .ToList()
+                        .ToList();
 
-            Parallel.ForEach(buildCiIds,
-                build =>
-                {
-                    if (!BuildsToBeRefreshed.ContainsKey(build))
-                        BuildsToBeRefreshed.TryAdd(build, build);
+                    Parallel.ForEach(
+                        buildCiIds,
+                        build =>
+                        {
+                            if(BuildsPerConnId.ContainsKey(connectionId)
+                                && !BuildsPerConnId[connectionId].Contains(build))
+                                BuildsPerConnId[connectionId].Add(build);
+                        });
+
+                    Parallel.ForEach(
+                        buildCiIds,
+                        build =>
+                        {
+                            if(!BuildsToBeRefreshed.ContainsKey(build))
+                                BuildsToBeRefreshed.TryAdd(build, build);
+                        });
                 });
         }
 
-        public async Task RemoveBuildConfig(string connectionId, BuildConfig buildConfig)
+        public Task RemoveBuildConfig(string connectionId, BuildConfig buildConfig)
         {
-            var buildId = buildConfig.CiExternalId;
-            if(BuildsPerConnId.ContainsKey(connectionId) && BuildsPerConnId[connectionId].Contains(buildId))
-                BuildsPerConnId[connectionId].Remove(buildId);
-
-            var exists = BuildsPerConnId.Values
-                .SelectMany(b => b)
-                .Contains(buildId);
-            if(exists)
-                return;
-
-            string bOut;
-            BuildsToBeRefreshed.TryRemove(buildId, out bOut);
-
-            Logger.Debug("Remove build {buildId} for {connectionId}", buildId, connectionId);
-        }
-
-        public async Task RemoveAllBuildConfigs(string connectionId)
-        {
-            var builds = new List<string>();
-            if (BuildsPerConnId.ContainsKey(connectionId))
-                BuildsPerConnId.TryRemove(connectionId, out builds);
-
-            Parallel.ForEach(builds,
-                build =>
+            return Task.Run(
+                () =>
                 {
+                    var buildId = buildConfig.CiExternalId;
+                    if(BuildsPerConnId.ContainsKey(connectionId) && BuildsPerConnId[connectionId].Contains(buildId))
+                        BuildsPerConnId[connectionId].Remove(buildId);
+
                     var exists = BuildsPerConnId.Values
                         .SelectMany(b => b)
-                        .Contains(build);
-                    if (exists)
+                        .Contains(buildId);
+                    if(exists)
                         return;
-                    string bOut;
-                    BuildsToBeRefreshed.TryRemove(build, out bOut);
-                });
 
-            Logger.Debug("Remove builds for {connectionId}", connectionId);
+                    string bOut;
+                    BuildsToBeRefreshed.TryRemove(buildId, out bOut);
+
+                    Logger.Debug("Remove build {buildId} for {connectionId}", buildId, connectionId);
+                });
+        }
+
+        public Task RemoveAllBuildConfigs(string connectionId)
+        {
+            return Task.Run(
+                () =>
+                {
+                    var builds = new List<string>();
+                    if(BuildsPerConnId.ContainsKey(connectionId))
+                        BuildsPerConnId.TryRemove(connectionId, out builds);
+
+                    Parallel.ForEach(
+                        builds,
+                        build =>
+                        {
+                            var exists = BuildsPerConnId.Values
+                                .SelectMany(b => b)
+                                .Contains(build);
+                            if(exists)
+                                return;
+                            string bOut;
+                            BuildsToBeRefreshed.TryRemove(build, out bOut);
+                        });
+
+                    Logger.Debug("Remove builds for {connectionId}", connectionId);
+                });
         }
     }
 }
