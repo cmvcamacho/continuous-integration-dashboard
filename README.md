@@ -66,7 +66,6 @@ This project is built using the following stack:
 * FluentAssertions
 * [TeamCitySharp-forked](https://github.com/y-gagar1n/TeamCitySharp)
 
-
 ## Credits
 
 Copyright (c) 2015 Carlos Camacho
