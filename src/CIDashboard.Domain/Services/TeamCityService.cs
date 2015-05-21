@@ -72,13 +72,13 @@ namespace CIDashboard.Domain.Services
             }
 
             // get build run details
-            Logger.Debug("Retrieving from TeamCity build details for {build.Id}", build.Id);
+            Logger.Debug("Retrieving from TeamCity build details for {buildId}", build.Id);
             var buildDetails = await GetBuildDetails(build);
 
             var mappedBuild = Mapper.Map<Build, CiBuildResult>(buildDetails);
 
             // get build run statistics
-            Logger.Debug("Retrieving from TeamCity build statistics for {build.Id}", build.Id);
+            Logger.Debug("Retrieving from TeamCity build statistics for {buildId}", build.Id);
             var buildStats = await GetBuildStatistics(build);
             if (buildStats != null)
             {

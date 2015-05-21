@@ -80,15 +80,20 @@ namespace CIDashboard.Web
 
         private void ConfigureHangfireJobs(IAppBuilder app, IContainer container)
         {
-            GlobalConfiguration.Configuration.UseAutofacActivator(container);
-            GlobalConfiguration.Configuration.UseSqlServerStorage(
-                "CiDashboardContext",
-                new SqlServerStorageOptions { QueuePollInterval = TimeSpan.FromSeconds(5) });
-            app.UseHangfireServer();
-            
+            app.UseHangfire(config =>
+            {
+                config.UseAutofacActivator(container);
+                config.UseSqlServerStorage(
+                    "CiDashboardContext",
+                    new SqlServerStorageOptions { QueuePollInterval = TimeSpan.FromSeconds(5) });
+                config.UseServer();
+            });
+
             var refreshInfoCron = ConfigurationManager.AppSettings["RefreshInfoCron"];
             if(string.IsNullOrEmpty(refreshInfoCron))
                 refreshInfoCron = "*/5 * * * *";
+            
+            RecurringJob.RemoveIfExists("SendRefreshBuildResults");
             RecurringJob.AddOrUpdate("SendRefreshBuildResults", () => container.Resolve<IRefreshInformation>().SendRefreshBuildResultsSync(), refreshInfoCron);
         }
 

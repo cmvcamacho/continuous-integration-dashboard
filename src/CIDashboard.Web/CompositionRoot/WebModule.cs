@@ -26,7 +26,7 @@ namespace CIDashboard.Web.CompositionRoot
                 .RegisterType<RefreshInformation>()
                 .As<IRefreshInformation>()
                 .PropertiesAutowired()
-                .InstancePerLifetimeScope();
+                .SingleInstance();
 
             builder
                 .RegisterType<InformationQuery>()
