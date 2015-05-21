@@ -1,6 +1,6 @@
 # Continuous Integration Dashboard #
 
-Build status: [![Build status](https://ci.appveyor.com/api/projects/status/wv8g82g3xkhfa56d?svg=true)](https://ci.appveyor.com/project/cmvcamacho/continuous-integration-dashboard)
+[![Build status](https://ci.appveyor.com/api/projects/status/wv8g82g3xkhfa56d?svg=true)](https://ci.appveyor.com/project/cmvcamacho/continuous-integration-dashboard)
 
 Dashboard to display build information from TeamCity (and other CI's). Each authenticated user can create his own dashboard view, aggregating Builds in project panels.
 
