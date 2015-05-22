@@ -44,6 +44,8 @@ The dashboard contains the following features:
 
 * Add support to other CI's like Jenkins, TFS, CruiseControl and so on...
 * Add support to sort projects and builds
+* Move to less css
+* Upgrade to VS2015 
 * Improve deployment scripts
 
 ## Contributing
